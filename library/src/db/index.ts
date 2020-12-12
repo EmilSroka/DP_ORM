@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from 'pg';
-export default class Database {
+export class Database {
   private pool: Pool;
   private client: PoolClient;
   constructor(
