@@ -1,47 +1,62 @@
-import { Relationship } from '../models/relationships';
-import { RelationshipType } from '../../common/models/field-types';
+import { Relationships } from '../relationships';
+import {
+  relationshipOneToManyFixture,
+  relationshipsFixture,
+  relationshipsManyToManyFixture,
+  relationshipsOneToOneFixture,
+} from '../../../fixtures/relationship';
+import { RelationshipType } from '../../../common/models/field-types';
 
-export class Relationships {
-  private toNTables: Set<string> = new Set();
-  private detailTables: Set<string> = new Set();
-  private relationships: Relationship[] = [];
+describe('Relationships (container)', () => {
+  let relationships: Relationships;
 
-  get(): Relationship[] {
-    return this.relationships;
-  }
-
-  getByType(type: RelationshipType): Relationship[] {
-    const result: Relationship[] = [];
-    this.relationships.forEach((relationship) => {
-      if (relationship.type == type) {
-        result.push(relationship);
-      }
+  beforeEach(() => {
+    relationships = new Relationships();
+    relationshipsFixture.forEach((relationship) => {
+      relationships.add(relationship);
     });
-    return result;
-  }
+  });
 
-  add(relationship: Relationship): void {
-    // TODO
-    // should add relationship to relationships list
-    // if it's 1 to n -> should add toTable to toNTarget set
-    // if it's n to n -> should add both tables name to toNTarget set
-    // if it's 1 to 1 -> should add toTable to to1Target set
-    this.relationships.push(relationship);
-    if (relationship.type == RelationshipType.oneToOne) {
-      this.detailTables.add(relationship.toTable);
-    } else if (relationship.type == RelationshipType.oneToMany) {
-      this.toNTables.add(relationship.toTable);
-    } else if (relationship.type == RelationshipType.manyToMany){
-      this.toNTables.add(relationship.toTable);
-      this.detailTables.add(relationship.fromTable);
-    }
-  }
+  it('should allow to get all relationships', () => {
+    expect(relationships.get()).toEqual(relationshipsFixture);
+  });
 
-  isDetailTable(tableName: string): boolean {
-    return this.detailTables.has(tableName);
-  }
+  it('should allow to get all relationships of given type', () => {
+    expect(relationships.getByType(RelationshipType.oneToMany)).toEqual(
+      relationshipOneToManyFixture,
+    );
+    expect(relationships.getByType(RelationshipType.oneToOne)).toEqual(
+      relationshipsOneToOneFixture,
+    );
+    expect(relationships.getByType(RelationshipType.manyToMany)).toEqual(
+      relationshipsManyToManyFixture,
+    );
+  });
 
-  isToNTable(tableName: string): boolean {
-    return this.toNTables.has(tableName);
-  }
-}
+  it('should allow to check if table of given name is a detail table (target in one to one relationship)', () => {
+    expect(
+      relationships.isDetailTable(relationshipsOneToOneFixture[0].toTable),
+    ).toBeTruthy();
+    expect(
+      relationships.isDetailTable(relationshipsOneToOneFixture[0].fromTable),
+    ).toBeFalsy();
+  });
+
+  it('should allow to check if table of given name is in n relationship', () => {
+    expect(
+      relationships.isToNTable(relationshipsManyToManyFixture[0].toTable),
+    ).toBeTruthy();
+    expect(
+      relationships.isDetailTable(relationshipsManyToManyFixture[0].fromTable),
+    ).toBeTruthy();
+    expect(
+      relationships.isDetailTable(relationshipOneToManyFixture[2].fromTable),
+    ).toBeFalsy();
+    expect(
+      relationships.isToNTable(relationshipOneToManyFixture[2].toTable),
+    ).toBeTruthy();
+    expect(
+      relationships.isDetailTable(relationshipsOneToOneFixture[0].toTable),
+    ).toBeTruthy();
+  });
+});
