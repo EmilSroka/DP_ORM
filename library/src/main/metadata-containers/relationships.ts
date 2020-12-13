@@ -21,11 +21,6 @@ export class Relationships {
   }
 
   add(relationship: Relationship): void {
-    // TODO
-    // should add relationship to relationships list
-    // if it's 1 to n -> should add toTable to toNTarget set
-    // if it's n to n -> should add both tables name to toNTarget set
-    // if it's 1 to 1 -> should add toTable to to1Target set
     this.relationships.push(relationship);
     if (relationship.type == RelationshipType.oneToOne) {
       this.detailTables.add(relationship.toTable);
