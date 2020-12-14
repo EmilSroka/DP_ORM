@@ -47,16 +47,16 @@ describe('Relationships (container)', () => {
       relationships.isToNTable(relationshipsManyToManyFixture[0].toTable),
     ).toBeTruthy();
     expect(
-      relationships.isDetailTable(relationshipsManyToManyFixture[0].fromTable),
+      relationships.isToNTable(relationshipsManyToManyFixture[0].fromTable),
     ).toBeTruthy();
     expect(
-      relationships.isDetailTable(relationshipOneToManyFixture[2].fromTable),
+      relationships.isToNTable(relationshipOneToManyFixture[2].fromTable),
     ).toBeFalsy();
     expect(
-      relationships.isDetailTable(relationshipOneToManyFixture[2].toTable),
+      relationships.isToNTable(relationshipOneToManyFixture[2].toTable),
     ).toBeTruthy();
     expect(
-      relationships.isDetailTable(relationshipsOneToOneFixture[0].toTable),
+      relationships.isToNTable(relationshipsOneToOneFixture[0].toTable),
     ).toBeFalsy();
   });
 });

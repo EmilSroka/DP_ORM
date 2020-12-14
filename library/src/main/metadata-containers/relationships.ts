@@ -11,28 +11,32 @@ export class Relationships {
   }
 
   getByType(type: RelationshipType): Relationship[] {
-    // TODO
-    // should returns list of relations of given type
-    return [];
+    const result: Relationship[] = [];
+    this.relationships.forEach((relationship) => {
+      if (relationship.type == type) {
+        result.push(relationship);
+      }
+    });
+    return result;
   }
 
   add(relationship: Relationship): void {
-    // TODO
-    // should add relationship to relationships list
-    // if it's 1 to n -> should add toTable to toNTarget set
-    // if it's n to n -> should add both tables name to toNTarget set
-    // if it's 1 to 1 -> should add toTable to to1Target set
+    this.relationships.push(relationship);
+    if (relationship.type == RelationshipType.oneToOne) {
+      this.detailTables.add(relationship.toTable);
+    } else if (relationship.type == RelationshipType.oneToMany) {
+      this.toNTables.add(relationship.toTable);
+    } else if (relationship.type == RelationshipType.manyToMany) {
+      this.toNTables.add(relationship.toTable);
+      this.toNTables.add(relationship.fromTable);
+    }
   }
 
   isDetailTable(tableName: string): boolean {
-    // TODO
-    // check condition if tableName is in detailTables set
-    return true;
+    return this.detailTables.has(tableName);
   }
 
   isToNTable(tableName: string): boolean {
-    // TODO
-    // check condition if tableName is in toNTables set
-    return true;
+    return this.toNTables.has(tableName);
   }
 }
