@@ -1,15 +1,20 @@
 import { EntityConfiguration } from '../models/entity-configuration';
 import { Tables } from '../../main/metadata-containers/tables';
-
-// Resources about ts decorators:
-// https://www.youtube.com/watch?v=O6A-u_FoEX8
-// https://www.typescriptlang.org/docs/handbook/decorators.html
+import { TableMap } from '../../common/models/table-map';
 
 export function Entity(tables: Tables, settings?: EntityConfiguration) {
   return function (constructor: () => void): void {
-    // TODO:
-    // 1. create DataMap
-    // 2. insert create DataMap into tables
-    // 3. add table name to object prototype -> _orm_table_name
+    const dataMap: TableMap = {
+      tableName: 'Avasdasdbsd',
+      columns: [],
+      constructor,
+    };
+    if (settings) {
+      dataMap.tableName = settings.tableName;
+      constructor.prototype['_orm_table_name'] = settings.tableName;
+    } else {
+      constructor.prototype['_orm_table_name'] = constructor.name;
+    }
+    tables.add(dataMap);
   };
 }
