@@ -7,18 +7,31 @@ export class Tables {
   add(element: TableMap): void {
     // TODO
     // should insert element into tableMaps and nameToTableMap
+    this.tableMaps.push(element);
+    this.nameToTableMap.set(element.tableName,element);
   }
 
   get(name: string): TableMap {
     // TODO
     // should returns map with given name
     // if not exist -> throw error
-    return {} as TableMap;
+
+    if(this.nameToTableMap.has(name)){
+      return this.nameToTableMap.get(name);
+    }
+    else{
+      throw new Error("There is no entry with that name")
+    }
+
   }
 
   getNames(): string[] {
     // TODO
     // should returns array of names of all tables
-    return [];
+    let arrayOfNames: string[] = [];
+    for (let [key, value] of this.nameToTableMap) {
+      arrayOfNames.push(key);
+    }
+    return arrayOfNames;
   }
 }
