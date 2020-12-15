@@ -2,8 +2,12 @@ import { Relationship } from '../models/relationships';
 import { RelationshipType } from '../../common/models/field-types';
 
 export class Relationships {
-  private toNTables: Set<string> = new Set();
-  private detailTables: Set<string> = new Set();
+  private tableNamesWithForeignKey: Set<string> = new Set<string>();
+  private tableNameToAssociatedTableNames: Map<string, string[]> = new Map<
+    string,
+    // AssociatedTable -> table that has foreign key set to primary key of tableName in map key
+    string[]
+  >();
   private relationships: Relationship[] = [];
 
   get(): Relationship[] {
@@ -11,6 +15,8 @@ export class Relationships {
   }
 
   getByType(type: RelationshipType): Relationship[] {
+    // TODO
+    // refactor by using filter
     const result: Relationship[] = [];
     this.relationships.forEach((relationship) => {
       if (relationship.type == type) {
@@ -21,22 +27,25 @@ export class Relationships {
   }
 
   add(relationship: Relationship): void {
-    this.relationships.push(relationship);
-    if (relationship.type == RelationshipType.oneToOne) {
-      this.detailTables.add(relationship.toTable);
-    } else if (relationship.type == RelationshipType.oneToMany) {
-      this.toNTables.add(relationship.toTable);
-    } else if (relationship.type == RelationshipType.manyToMany) {
-      this.toNTables.add(relationship.toTable);
-      this.toNTables.add(relationship.fromTable);
-    }
+    // TODO
+    // change behavior to given
+    // 1. insert relationship into relationships
+    // 2. if it's 1to1 or 1toN then
+    // -> insert toTable to tableNamesWithForeignKey
+    // -> insert toTable to tableNameToAssociatedTableNames map. Entry key = fromTable
+    // edge case: what if key doesn't exist yet ?
   }
 
-  isDetailTable(tableName: string): boolean {
-    return this.detailTables.has(tableName);
+  hasForeignKey(tableName: string): boolean {
+    // TODO
+    // check if tableMap of given name has foreign key
+    return false;
   }
 
-  isToNTable(tableName: string): boolean {
-    return this.toNTables.has(tableName);
+  getAssociatedTablesNames(tableName: string): string[] {
+    // TODO
+    // return proper entry form map
+    // edge case -> key doesn't exist -> empty array
+    return [];
   }
 }

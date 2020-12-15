@@ -1,5 +1,6 @@
 import { Relationships } from '../relationships';
 import {
+  mapFixture,
   relationshipOneToManyFixture,
   relationshipsFixture,
   relationshipsManyToManyFixture,
@@ -33,30 +34,25 @@ describe('Relationships (container)', () => {
     );
   });
 
-  it('should allow to check if table of given name is a detail table (target in one to one relationship)', () => {
+  it('should allow to check if table of given name has foreign key', () => {
     expect(
-      relationships.isDetailTable(relationshipsOneToOneFixture[0].toTable),
+      relationships.hasForeignKey(relationshipsOneToOneFixture[0].toTable),
     ).toBeTruthy();
     expect(
-      relationships.isDetailTable(relationshipsOneToOneFixture[0].fromTable),
+      relationships.hasForeignKey(relationshipOneToManyFixture[0].toTable),
+    ).toBeTruthy();
+    expect(
+      relationships.hasForeignKey(relationshipOneToManyFixture[0].fromTable),
     ).toBeFalsy();
   });
 
-  it('should allow to check if table of given name is in n relationship', () => {
-    expect(
-      relationships.isToNTable(relationshipsManyToManyFixture[0].toTable),
-    ).toBeTruthy();
-    expect(
-      relationships.isToNTable(relationshipsManyToManyFixture[0].fromTable),
-    ).toBeTruthy();
-    expect(
-      relationships.isToNTable(relationshipOneToManyFixture[2].fromTable),
-    ).toBeFalsy();
-    expect(
-      relationships.isToNTable(relationshipOneToManyFixture[2].toTable),
-    ).toBeTruthy();
-    expect(
-      relationships.isToNTable(relationshipsOneToOneFixture[0].toTable),
-    ).toBeFalsy();
+  it('should allow to get names of tables associated with table of passed name', () => {
+    for (const [tableName, associatedTableNames] of Object.entries(
+      mapFixture,
+    )) {
+      expect(relationships.getAssociatedTablesNames(tableName)).toEqual(
+        associatedTableNames,
+      );
+    }
   });
 });
