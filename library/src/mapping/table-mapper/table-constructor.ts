@@ -5,26 +5,26 @@ export class TableConstructor {
   constructor(private tables: Tables, private relationships: Relationships) {}
 
   getTableMapsNamesInCreationOrder(): string[] {
-    let result: string[] = this.tables
+    const result: string[] = this.tables
       .getNames()
       .filter((tableName) => !this.relationships.hasForeignKey(tableName));
 
-    const tableNamesWithForeignKey: string[] = this.tables
-      .getNames()
-      .filter((tableName) => this.relationships.hasForeignKey(tableName));
+    // Clones array
+    const queue = Object.assign([], result);
 
-    result = result.concat(tableNamesWithForeignKey);
-
-    tableNamesWithForeignKey.forEach((tableName) => {
-      if (this.relationships.hasForeignKey(tableName)) {
-        this.relationships
-          .getAssociatedTablesNames(tableName)
-          .forEach((deepTableName) => {
-            result.push(deepTableName);
-          });
-      }
-    });
-
+    // BFS for dependencies
+    while (queue.length > 0) {
+      // Pops first element from the array
+      const queueTable = queue.shift();
+      this.relationships
+        .getAssociatedTablesNames(queueTable)
+        .forEach((associatedTableName) => {
+          if (!result.includes(associatedTableName)) {
+            result.push(associatedTableName);
+            queue.push(associatedTableName);
+          }
+        });
+    }
     return result;
   }
 }

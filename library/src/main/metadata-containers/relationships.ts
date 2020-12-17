@@ -16,23 +16,24 @@ export class Relationships {
 
   getByType(type: RelationshipType): Relationship[] {
     return this.relationships.filter(
-      (relationship) => relationship.type == type,
+      (relationship) => relationship.type === type,
     );
   }
 
   add(relationship: Relationship): void {
     this.relationships.push(relationship);
-    if (relationship.type != RelationshipType.manyToMany) {
-      this.tableNamesWithForeignKey.add(relationship.toTable);
-      if (this.tableNameToAssociatedTableNames.has(relationship.fromTable)) {
-        this.tableNameToAssociatedTableNames
-          .get(relationship.fromTable)
-          .push(relationship.toTable);
-      } else {
-        this.tableNameToAssociatedTableNames.set(relationship.fromTable, [
-          relationship.toTable,
-        ]);
-      }
+
+    if (relationship.type === RelationshipType.manyToMany) return;
+
+    this.tableNamesWithForeignKey.add(relationship.toTable);
+    if (this.tableNameToAssociatedTableNames.has(relationship.fromTable)) {
+      this.tableNameToAssociatedTableNames
+        .get(relationship.fromTable)
+        .push(relationship.toTable);
+    } else {
+      this.tableNameToAssociatedTableNames.set(relationship.fromTable, [
+        relationship.toTable,
+      ]);
     }
   }
 
