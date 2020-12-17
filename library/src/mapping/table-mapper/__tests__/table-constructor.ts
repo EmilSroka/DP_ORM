@@ -47,6 +47,8 @@ describe('TableConstructor', () => {
     for (const tableName of layer2Expected) {
       expect(layer2).toContain(tableName);
     }
+
+    expect(order.length).toBe(tables.getNames().length);
   });
 });
 
