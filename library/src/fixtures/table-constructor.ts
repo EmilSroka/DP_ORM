@@ -233,7 +233,7 @@ export const hasForeignKeyFixture = [
 export const hasForeignKeyFromFixture = {
   clients: ['orders'],
   receivers: ['orders'],
-  compositions: ['orders'],
+  compositions: ['orders', 'compositionDetails'],
   compositionCreators: [],
   orders: [],
   compositionDetails: ['extraDetails'],
