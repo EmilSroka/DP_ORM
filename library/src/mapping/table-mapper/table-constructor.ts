@@ -5,12 +5,26 @@ export class TableConstructor {
   constructor(private tables: Tables, private relationships: Relationships) {}
 
   getTableMapsNamesInCreationOrder(): string[] {
-    // TODO
-    // should returns array that contains names of TableMaps in creation order
-    // ! do changes in Relationships before start this part
-    // algorithm:
-    // * get tables names that don't have foreign keys (look Relationships) -> starting nodes
-    // * add others names (look Relationships) -> BFS algorithm
-    return [];
+    let result: string[] = this.tables
+      .getNames()
+      .filter((tableName) => !this.relationships.hasForeignKey(tableName));
+
+    const tableNamesWithForeignKey: string[] = this.tables
+      .getNames()
+      .filter((tableName) => this.relationships.hasForeignKey(tableName));
+
+    result = result.concat(tableNamesWithForeignKey);
+
+    tableNamesWithForeignKey.forEach((tableName) => {
+      if (this.relationships.hasForeignKey(tableName)) {
+        this.relationships
+          .getAssociatedTablesNames(tableName)
+          .forEach((deepTableName) => {
+            result.push(deepTableName);
+          });
+      }
+    });
+
+    return result;
   }
 }

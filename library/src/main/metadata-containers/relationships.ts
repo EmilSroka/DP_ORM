@@ -15,37 +15,35 @@ export class Relationships {
   }
 
   getByType(type: RelationshipType): Relationship[] {
-    // TODO
-    // refactor by using filter
-    const result: Relationship[] = [];
-    this.relationships.forEach((relationship) => {
-      if (relationship.type == type) {
-        result.push(relationship);
-      }
-    });
-    return result;
+    return this.relationships.filter(
+      (relationship) => relationship.type == type,
+    );
   }
 
   add(relationship: Relationship): void {
-    // TODO
-    // change behavior to given
-    // 1. insert relationship into relationships
-    // 2. if it's 1to1 or 1toN then
-    // -> insert toTable to tableNamesWithForeignKey
-    // -> insert toTable to tableNameToAssociatedTableNames map. Entry key = fromTable
-    // edge case: what if key doesn't exist yet ?
+    this.relationships.push(relationship);
+    if (relationship.type != RelationshipType.manyToMany) {
+      this.tableNamesWithForeignKey.add(relationship.toTable);
+      if (this.tableNameToAssociatedTableNames.has(relationship.fromTable)) {
+        this.tableNameToAssociatedTableNames
+          .get(relationship.fromTable)
+          .push(relationship.toTable);
+      } else {
+        this.tableNameToAssociatedTableNames.set(relationship.fromTable, [
+          relationship.toTable,
+        ]);
+      }
+    }
   }
 
   hasForeignKey(tableName: string): boolean {
-    // TODO
-    // check if tableMap of given name has foreign key
-    return false;
+    return this.tableNamesWithForeignKey.has(tableName);
   }
 
   getAssociatedTablesNames(tableName: string): string[] {
-    // TODO
-    // return proper entry form map
-    // edge case -> key doesn't exist -> empty array
+    if (this.tableNameToAssociatedTableNames.has(tableName)) {
+      return this.tableNameToAssociatedTableNames.get(tableName);
+    }
     return [];
   }
 }

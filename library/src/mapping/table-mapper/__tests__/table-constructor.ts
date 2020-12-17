@@ -68,7 +68,7 @@ jest.mock('../../../main/metadata-containers/relationships', () => {
         hasForeignKey: jest.fn((name: string) =>
           hasForeignKeyFixture.includes(name),
         ),
-        tablesThatHaveForeignKeyFrom: jest.fn(
+        getAssociatedTablesNames: jest.fn(
           (name: string) => hasForeignKeyFromFixture[name],
         ),
         get: jest.fn(() => relationshipsFixture),
