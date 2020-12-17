@@ -223,7 +223,7 @@ export const tablesNamesFixtures = [
   ...tablesNamesInOrderFixtures.layer0,
   ...tablesNamesInOrderFixtures.layer1,
   ...tablesNamesInOrderFixtures.layer2,
-];
+].sort(() => 0.5 - Math.random());
 
 export const hasForeignKeyFixture = [
   ...tablesNamesInOrderFixtures.layer1,
