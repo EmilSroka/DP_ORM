@@ -80,7 +80,7 @@ describe('Attribute (decorator)', () => {
 
   it('should handle one to many relationship', () => {
     const { oneToManyFixture: settings } = attributeConfigurationFixtures;
-    const { oneToManyFixture: result } = relationshipsFixtures;
+    const { oneToManyFixture: result } = columnMapFixtures;
     const attribute = Attribute(tables, relationships, settings);
     attribute(target, filedName);
     const columnMap = tablesFixtures[target[tableNameField]].columns[0];
@@ -90,7 +90,7 @@ describe('Attribute (decorator)', () => {
 
   it('should handle many to many relationship', () => {
     const { manyToManyFixture: settings } = attributeConfigurationFixtures;
-    const { manyToManyFixture: result } = relationshipsFixtures;
+    const { manyToManyFixture: result } = columnMapFixtures;
     const attribute = Attribute(tables, relationships, settings);
     attribute(target, filedName);
     const columnMap = tablesFixtures[target[tableNameField]].columns[0];
@@ -100,7 +100,7 @@ describe('Attribute (decorator)', () => {
 
   it('should handle one to one relationship', () => {
     const { oneToOneFixture: settings } = attributeConfigurationFixtures;
-    const { oneToOneFixture: result } = relationshipsFixtures;
+    const { oneToOneFixture: result } = columnMapFixtures;
     const attribute = Attribute(tables, relationships, settings);
     attribute(target, filedName);
     const columnMap = tablesFixtures[target[tableNameField]].columns[0];

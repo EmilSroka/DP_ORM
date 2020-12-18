@@ -1,6 +1,11 @@
 import { AttributeConfiguration } from '../models/attribute-configuration';
 import { Tables } from '../../main/metadata-containers/tables';
 import { Relationships } from '../../main/metadata-containers/relationships';
+import { ColumnMap } from '../../common/models/column-map';
+import {
+  RelationshipFieldType,
+  RelationshipType,
+} from '../../common/models/field-types';
 
 export function Attribute(
   tables: Tables,
@@ -8,20 +13,51 @@ export function Attribute(
   settings: AttributeConfiguration,
 ) {
   return function (target: any, key: string | symbol) {
-    // TODO:
-    // 1. create ColumnMap
-    // -> fieldName -> columnName | key
-    // -> columnName -> key
-    // -> isPrimaryKey -> isPrimaryKey | false
-    // -> type -> type
-    // -> isNullable -> isNullable | true
-    // -> isUnique -> isUnique | false
-    // 2. add created ColumnMap to proper DataMap
-    // -> name can by taken from field _orm_table_name (target)
-    // -> DataMap can by taken form Tables
-    // 3. if it is a relationship -> create and add relationship to Relationships
-    // -> edge case: when we have many to many, we should check if reversed relation doesnt exist:
-    // eg. we have table 'abc' and relation many to many 'abc' <-> 'xyz'
-    //     we should check if relation 'xyz' <-> 'abc' isn't in Relationships already
+    const tableMap = tables.get(target._orm_table_name);
+    const columnMap: ColumnMap = {
+      fieldName: key as string,
+      columnName: settings.columnName || (key as string),
+      type: settings.type,
+      isPrimaryKey: settings.isPrimaryKey || true,
+      isNullable: settings.isNullable || false,
+      isUnique: settings.isUnique || true,
+    };
+    tableMap.columns.push(columnMap);
+    const relations = columnMap.type as RelationshipFieldType;
+    switch (relations.type) {
+      case RelationshipType.oneToOne:
+        relationships.add({
+          type: RelationshipType.oneToOne,
+          toTable: relations.with,
+          fromTable: tableMap.tableName,
+        });
+        break;
+      case RelationshipType.manyToMany:
+        const relationsTable = relationships.getByType(
+          RelationshipType.manyToMany,
+        );
+        const existRelation = relationsTable.some(
+          (rel) =>
+            rel.fromTable === relations.with &&
+            rel.toTable === tableMap.tableName,
+        );
+        if (!existRelation) {
+          relationships.add({
+            type: RelationshipType.manyToMany,
+            toTable: relations.with,
+            fromTable: tableMap.tableName,
+          });
+        } else break;
+        break;
+      case RelationshipType.oneToMany:
+        // relationships.add({
+        //   type: RelationshipType.oneToMany,
+        //   toTable: relations.with,
+        //   fromTable: tableMap.tableName,
+        // });
+        break;
+      default:
+        return;
+    }
   };
 }
