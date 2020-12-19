@@ -1,7 +1,6 @@
 export enum JsType {
   null,
   undefined,
-  date,
   number,
   boolean,
   string,
@@ -13,15 +12,18 @@ export enum RelationshipType {
   manyToMany,
 }
 
-export type JsFieldTypes =
-  | JsType.date
-  | JsType.number
-  | JsType.boolean
-  | JsType.string;
+export enum DbType {
+  autoincrement,
+  date,
+}
+
+export type JsFieldTypes = JsType.number | JsType.boolean | JsType.string;
+
+export type DbFieldTypes = DbType.autoincrement | DbType.date;
 
 export interface RelationshipFieldType {
   type: RelationshipType;
   with: string;
 }
 
-export type Field = JsFieldTypes | RelationshipFieldType;
+export type Field = JsFieldTypes | DbFieldTypes | RelationshipFieldType;

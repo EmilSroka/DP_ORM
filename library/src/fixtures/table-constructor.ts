@@ -1,5 +1,6 @@
-import { JsType, RelationshipType } from '../common/models/field-types';
+import { DbType, JsType, RelationshipType } from '../common/models/field-types';
 import { TableMap } from '../common/models/table-map';
+import { TableSchema } from '../common/models/database-schema';
 
 export const tablesFixtures: {
   [key: string]: TableMap;
@@ -163,14 +164,14 @@ export const tablesFixtures: {
       {
         fieldName: 'date',
         columnName: 'date',
-        type: JsType.date,
+        type: DbType.date,
         isPrimaryKey: false,
         isNullable: true,
         isUnique: false,
       },
     ],
   },
-  compositionCreator: {
+  compositionCreators: {
     tableName: 'compositionCreators',
     constructor: () => null,
     columns: [
@@ -284,3 +285,182 @@ export const relationshipsFixture = [
   ...relationshipsByTypeFixture[RelationshipType.oneToOne],
   ...relationshipsByTypeFixture[RelationshipType.manyToMany],
 ];
+
+export const tableSchemaFixtures: {
+  [key: string]: TableSchema;
+} = {
+  clients: {
+    name: 'clients',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+      },
+      {
+        name: 'name',
+        type: JsType.string,
+        isPrimaryKey: false,
+        isNullable: true,
+        isUnique: false,
+      },
+    ],
+  },
+  orders: {
+    name: 'orders',
+    columns: [
+      {
+        name: 'id1',
+        type: DbType.autoincrement,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+      },
+      {
+        name: 'priceColumn',
+        type: JsType.number,
+        isPrimaryKey: false,
+        isNullable: false,
+        isUnique: false,
+      },
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: false,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'clients',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'foreignKey1',
+        type: JsType.number,
+        isPrimaryKey: false,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'receivers',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'foreignKey2',
+        type: JsType.number,
+        isPrimaryKey: false,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositions',
+          columnName: 'id',
+        },
+      },
+    ],
+  },
+  receivers: {
+    name: 'receivers',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+      },
+      {
+        name: 'name',
+        type: JsType.string,
+        isPrimaryKey: false,
+        isNullable: true,
+        isUnique: false,
+      },
+    ],
+  },
+  compositions: {
+    name: 'compositions',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+      },
+    ],
+  },
+  compositionDetails: {
+    name: 'compositionDetails',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositions',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'description',
+        type: JsType.string,
+        isPrimaryKey: false,
+        isNullable: true,
+        isUnique: false,
+      },
+    ],
+  },
+  extraDetails: {
+    name: 'extraDetails',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositionDetails',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'date',
+        type: DbType.date,
+        isPrimaryKey: false,
+        isNullable: true,
+        isUnique: false,
+      },
+    ],
+  },
+  compositionCreators: {
+    name: 'compositionCreators',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+      },
+      {
+        name: 'name',
+        type: JsType.string,
+        isPrimaryKey: false,
+        isNullable: true,
+        isUnique: false,
+      },
+      {
+        name: 'expLoL',
+        type: JsType.boolean,
+        isPrimaryKey: false,
+        isNullable: false,
+        isUnique: false,
+      },
+    ],
+  },
+};

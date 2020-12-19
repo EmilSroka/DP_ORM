@@ -5,12 +5,14 @@ import {
   hasForeignKeyFromFixture,
   relationshipsByTypeFixture,
   relationshipsFixture,
+  tableSchemaFixtures,
   tablesFixtures,
   tablesNamesFixtures,
   tablesNamesInOrderFixtures,
 } from '../../../fixtures/table-constructor';
 import { RelationshipType } from '../../../common/models/field-types';
 import { TableConstructor } from '../table-constructor';
+import { TableSchema } from '../../../common/models/database-schema';
 
 describe('TableConstructor', () => {
   let tables: Tables;
@@ -50,6 +52,94 @@ describe('TableConstructor', () => {
 
     expect(order.length).toBe(tables.getNames().length);
   });
+
+  it('method: toTableSchema should map non key ColumnMaps from TableMap to TableSchema columns', () => {
+    const order = tableConstructor.getTableMapsNamesInCreationOrder();
+    const result = order.map(
+      tableConstructor.toTableSchema.bind(tableConstructor),
+    ) as TableSchema[];
+
+    const simpleColumns: [string, string][] = [
+      ['clients', 'name'],
+      ['orders', 'priceColumn'],
+      ['receivers', 'name'],
+      ['compositionDetails', 'description'],
+      ['extraDetails', 'description'],
+      ['compositionCreators', 'name'],
+      ['compositionCreators', 'expLoL'],
+    ];
+
+    schemaAssertion(result, simpleColumns);
+  });
+
+  it('method: toTableSchema should map primary key ColumnMaps from TableMap to TableSchema columns', () => {
+    const order = tableConstructor.getTableMapsNamesInCreationOrder();
+    const result = order.map(
+      tableConstructor.toTableSchema.bind(tableConstructor),
+    ) as TableSchema[];
+
+    const primaryKeyColumns: [string, string][] = [
+      ['clients', 'id'],
+      ['receivers', 'id'],
+      ['compositions', 'id'],
+      ['compositionCreators', 'id'],
+    ];
+
+    schemaAssertion(result, primaryKeyColumns);
+  });
+
+  it('method: toTableSchema should insert missing primary keys', () => {
+    const order = tableConstructor.getTableMapsNamesInCreationOrder();
+    const result = order.map(
+      tableConstructor.toTableSchema.bind(tableConstructor),
+    ) as TableSchema[];
+
+    schemaAssertion(result, [['orders', 'id1']]);
+  });
+
+  it('method: toTableSchema should insert foreign keys (1toM) to proper tables', () => {
+    const order = tableConstructor.getTableMapsNamesInCreationOrder();
+    const result = order.map(
+      tableConstructor.toTableSchema.bind(tableConstructor),
+    ) as TableSchema[];
+
+    const foreignKeyColumns: [string, string][] = [
+      ['orders', 'id'],
+      ['orders', 'foreignKey1'],
+      ['orders', 'foreignKey2'],
+    ];
+
+    schemaAssertion(result, foreignKeyColumns);
+  });
+
+  it('method: toTableSchema should insert foreign keys (1to1) to proper tables', () => {
+    const order = tableConstructor.getTableMapsNamesInCreationOrder();
+    const result = order.map(
+      tableConstructor.toTableSchema.bind(tableConstructor),
+    ) as TableSchema[];
+
+    const foreignKeyColumns: [string, string][] = [
+      ['compositionDetails', 'id'],
+      ['extraDetails', 'id'],
+    ];
+
+    schemaAssertion(result, foreignKeyColumns);
+  });
+
+  const schemaAssertion = (
+    result: TableSchema[],
+    toCheck: [string, string][],
+  ) => {
+    for (const [tableName, columnName] of toCheck) {
+      const resultColumn = result
+        .find(({ name }) => name === tableName)
+        .columns.find(({ name }) => name === columnName);
+      const expectedColumn = tableSchemaFixtures[tableName].columns.find(
+        ({ name }) => name === columnName,
+      );
+      expect(resultColumn).toEqual(expectedColumn);
+    }
+  };
 });
 
 jest.mock('../../../main/metadata-containers/tables', () => {
