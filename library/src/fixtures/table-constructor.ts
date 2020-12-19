@@ -465,6 +465,96 @@ export const tableSchemaFixtures: {
   },
 };
 
+export const linkTablesSchemaFixtures: {
+  [key: string]: TableSchema;
+} = {
+  ...tableSchemaFixtures,
+  compositions_compositionCreators: {
+    name: 'compositions_compositionCreators',
+    columns: [
+      {
+        name: 'id1',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositions',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'id2',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositionCreators',
+          columnName: 'id',
+        },
+      },
+    ],
+  },
+};
+
+export const compositionDetailsWithDifferentKey = {
+  name: 'compositionDetails',
+  columns: [
+    {
+      name: 'diff',
+      type: JsType.number,
+      isPrimaryKey: true,
+      isNullable: false,
+      isUnique: true,
+      foreignKey: {
+        tableName: 'compositions',
+        columnName: 'id',
+      },
+    },
+    {
+      name: 'description',
+      type: JsType.string,
+      isPrimaryKey: false,
+      isNullable: true,
+      isUnique: false,
+    },
+  ],
+};
+
+export const difLinkTablesSchemaFixtures: {
+  [key: string]: TableSchema;
+} = {
+  ...tableSchemaFixtures,
+  compositions_compositionCreators: {
+    name: 'compositions_compositionCreators',
+    columns: [
+      {
+        name: 'id',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositions',
+          columnName: 'id',
+        },
+      },
+      {
+        name: 'diff',
+        type: JsType.number,
+        isPrimaryKey: true,
+        isNullable: false,
+        isUnique: true,
+        foreignKey: {
+          tableName: 'compositionCreators',
+          columnName: 'diff',
+        },
+      },
+    ],
+  },
+};
+
 export const oneToManyForeignKeysFixture = [
   'compositions',
   'receivers',
