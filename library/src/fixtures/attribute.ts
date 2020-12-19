@@ -32,7 +32,7 @@ export const attributeConfigurationFixtures: {
   },
   manyToManyFailFixture: {
     type: {
-      type: RelationshipType.oneToMany,
+      type: RelationshipType.manyToMany,
       with: 'ppp',
     },
   },
