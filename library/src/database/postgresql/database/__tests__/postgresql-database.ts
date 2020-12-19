@@ -28,8 +28,10 @@ describe('PostgresqlDatabase', () => {
 
     await postgresqlDatabase.connect();
     await postgresqlDatabase.transaction(actionFixture);
-    await postgresqlDatabase.transaction(actionFailFixture).catch();
-    await postgresqlDatabase.transaction(actionFailByRejectionFixture).catch();
+    await postgresqlDatabase.transaction(actionFailFixture).catch(() => null);
+    await postgresqlDatabase
+      .transaction(actionFailByRejectionFixture)
+      .catch(() => null);
 
     expect(actionFixture[0]).toBeCalledTimes(1);
     expect(actionFixture[1]).toBeCalledTimes(1);
@@ -42,7 +44,7 @@ describe('PostgresqlDatabase', () => {
     expect(actionFailByRejectionFixture[0]).toBeCalledTimes(1);
     expect(actionFailByRejectionFixture[1]).toBeCalledTimes(1);
     expect(actionFailByRejectionFixture[2]).toBeCalledTimes(1);
-    expect(actionFailByRejectionFixture[2]).not.toBeCalled();
+    expect(actionFailByRejectionFixture[3]).not.toBeCalled();
   });
 
   it('method: transaction should return a resolved promise on success (all transactions passed)', async () => {
@@ -87,7 +89,7 @@ describe('PostgresqlDatabase', () => {
     expect.assertions(3);
 
     await postgresqlDatabase.connect();
-    await postgresqlDatabase.transaction(actionFailFixture).catch();
+    await postgresqlDatabase.transaction(actionFailFixture).catch(() => null);
     expect(QueryMockFn).toHaveBeenCalledTimes(2);
     expect(QueryMockFn).toHaveBeenNthCalledWith(1, 'BEGIN');
     expect(QueryMockFn).toHaveBeenNthCalledWith(2, 'ROLLBACK');
@@ -115,6 +117,7 @@ jest.mock('pg', () => {
         connect: () =>
           Promise.resolve({
             query: queryMockFn,
+            release: jest.fn(),
           }),
       };
     },
