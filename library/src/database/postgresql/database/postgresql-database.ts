@@ -38,6 +38,32 @@ export class PostgresqlDatabase implements Database {
     // 3. iterate over actions and invoke, pass created PostgresqlRepository as parameter
     // -> if action fail (rejected promise or resolved as false): query 'ROLLBACK' -> reject promise (true)
     // -> else (all actions resolves successfully) -> resolve promise (false)
-    return Promise.resolve();
+
+    if (typeof this.pool == 'undefined') {
+      return Promise.reject(); //new Error('Undefined type')
+    }
+    const client = await this.pool.connect();
+
+    try {
+      const pgrepository: PostgresqlRepository = new PostgresqlRepository(
+        client,
+      );
+
+      await client.query('BEGIN');
+
+      for (const action of actions) {
+        const result = await action(pgrepository);
+        if (!result) {
+          throw 'action failed';
+        }
+      }
+      return await Promise.resolve(false);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.log(`Transaction failed ${err}`);
+      return await Promise.reject();
+    } finally {
+      client.release;
+    }
   }
 }
