@@ -14,50 +14,37 @@ export function Attribute(
 ) {
   return function (target: any, key: string | symbol) {
     const tableMap = tables.get(target._orm_table_name);
-    const columnMap: ColumnMap = {
-      fieldName: key as string,
-      columnName: settings.columnName || (key as string),
-      type: settings.type,
-      isPrimaryKey: settings.isPrimaryKey || true,
-      isNullable: settings.isNullable || false,
-      isUnique: settings.isUnique || true,
+    const defaultSettings = {
+      fieldName: key.toString(),
+      columnName: key.toString(),
+      isPrimaryKey: true,
+      isNullable: false,
+      isUnique: true,
     };
+
+    const columnMap: ColumnMap = { ...defaultSettings, ...settings };
     tableMap.columns.push(columnMap);
     const relations = columnMap.type as RelationshipFieldType;
-    switch (relations.type) {
-      case RelationshipType.oneToOne:
-        relationships.add({
-          type: RelationshipType.oneToOne,
-          toTable: relations.with,
-          fromTable: tableMap.tableName,
-        });
-        break;
-      case RelationshipType.manyToMany:
-        const relationsTable = relationships.getByType(
-          RelationshipType.manyToMany,
-        );
-        const existRelation = relationsTable.some(
+    if (!relations.type) return;
+    else {
+      let existRelation = false;
+      if (relations.type === RelationshipType.manyToMany) {
+        const relationsTable = relationships.getByType(relations.type);
+        existRelation = relationsTable.some(
           (rel) =>
             rel.fromTable === relations.with &&
             rel.toTable === tableMap.tableName,
         );
-        if (!existRelation) {
-          relationships.add({
-            type: RelationshipType.manyToMany,
-            toTable: relations.with,
-            fromTable: tableMap.tableName,
-          });
-        } else break;
-        break;
-      case RelationshipType.oneToMany:
-        // relationships.add({
-        //   type: RelationshipType.oneToMany,
-        //   toTable: relations.with,
-        //   fromTable: tableMap.tableName,
-        // });
-        break;
-      default:
+      }
+      if (relations.type === RelationshipType.manyToMany && existRelation)
         return;
+      else {
+        relationships.add({
+          type: relations.type,
+          toTable: relations.with,
+          fromTable: tableMap.tableName,
+        });
+      }
     }
   };
 }
