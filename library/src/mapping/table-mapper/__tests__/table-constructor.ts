@@ -1,9 +1,12 @@
 import { Tables } from '../../../main/metadata-containers/tables';
 import { Relationships } from '../../../main/metadata-containers/relationships';
 import {
+  compositionDetailsWithDifferentKey,
+  difLinkTablesSchemaFixtures,
   hasForeignKeyFixture,
   hasForeignKeyFromFixture,
   oneToManyForeignKeysFixture,
+  linkTablesSchemaFixtures,
   relationshipsByTypeFixture,
   relationshipsFixture,
   tableSchemaFixtures,
@@ -53,6 +56,77 @@ describe('TableConstructor', () => {
 
     expect(order.length).toBe(tables.getNames().length);
   });
+
+  it('method: insertLinkTables should create association (link) table', () => {
+    const input = Object.values(tableSchemaFixtures);
+    const result = tableConstructor.insertLinkTables(input);
+
+    expect(result).toContainEqual(
+      linkTablesSchemaFixtures['compositions_compositionCreators'],
+    );
+  });
+
+  it('method: insertLinkTables cannot mutate original columns', () => {
+    const input = Object.values(tableSchemaFixtures);
+    const schemaCopy = JSON.parse(JSON.stringify(tableSchemaFixtures));
+    const result = tableConstructor.insertLinkTables(input);
+
+    const differentNameForeignKeyColumns: [string, string][] = [
+      ['compositions', 'id'],
+      ['compositionCreators', 'id'],
+    ];
+
+    schemaAssertion(result, differentNameForeignKeyColumns, schemaCopy);
+  });
+
+  it('method: insertLinkTables should change columns names, only when both primary keys have the same name', () => {
+    const sameNameInput = Object.values(tableSchemaFixtures);
+    const differentNameInput = {
+      ...sameNameInput,
+      compositionDetails: compositionDetailsWithDifferentKey,
+    };
+    const sameNameResult = tableConstructor.insertLinkTables(sameNameInput);
+    const differentNameResult = tableConstructor.insertLinkTables(
+      differentNameInput,
+    );
+
+    const sameNameForeignKeyColumns: [string, string][] = [
+      ['compositions_compositionCreators', 'id1'],
+      ['compositions_compositionCreators', 'id2'],
+    ];
+
+    const differentNameForeignKeyColumns: [string, string][] = [
+      ['compositions_compositionCreators', 'id'],
+      ['compositions_compositionCreators', 'diff'],
+    ];
+
+    schemaAssertion(
+      sameNameResult,
+      sameNameForeignKeyColumns,
+      linkTablesSchemaFixtures,
+    );
+    schemaAssertion(
+      differentNameResult,
+      differentNameForeignKeyColumns,
+      difLinkTablesSchemaFixtures,
+    );
+  });
+
+  const schemaAssertion = (
+    result: TableSchema[],
+    toCheck: [string, string][],
+    fixture = tableSchemaFixtures,
+  ) => {
+    for (const [tableName, columnName] of toCheck) {
+      const resultColumn = result
+        .find(({ name }) => name === tableName)
+        .columns.find(({ name }) => name === columnName);
+      const expectedColumn = fixture[tableName].columns.find(
+        ({ name }) => name === columnName,
+      );
+      expect(resultColumn).toEqual(expectedColumn);
+    }
+  };
 
   it('method: toTableSchema should map non key ColumnMaps from TableMap to TableSchema columns', () => {
     const order = tableConstructor.getTableMapsNamesInCreationOrder();
