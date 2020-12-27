@@ -1,6 +1,7 @@
 import { Tables } from '../../main/metadata-containers/tables';
 import { Relationships } from '../../main/metadata-containers/relationships';
 import { Column, TableSchema } from '../../common/models/database-schema';
+import { Relationship } from '../../main/models/relationships';
 import {
   DbType,
   isRelationshipField,
@@ -12,11 +13,13 @@ import { deepCopy } from '../../utils/copy';
 export class TableConstructor {
   private tableNameToForeignKeyColumns: Map<string, Column[]> = new Map();
   constructor(private tables: Tables, private relationships: Relationships) {}
+
   getDatabaseScheme(): TableSchema[] {
     const tablesNames = this.getTableMapsNamesInCreationOrder();
     const tableSchemas = tablesNames.map(this.toTableSchema);
     return [];
   }
+
   getTableMapsNamesInCreationOrder(): string[] {
     const result: string[] = this.tables
       .getNames()
@@ -176,15 +179,71 @@ export class TableConstructor {
   }
 
   insertLinkTables(schema: TableSchema[]): TableSchema[] {
-    // TODO:
-    // 1. get all many to many relationships from Relationships
-    // 2. get all Columns that are keyColumns from schema (for both tables)
-    // 3. if both have column with teh same name, change names to: <oldName>1, <oldName>2
-    //    ! 1 for column in fromTable
-    //    ! make sure to not change original columns (make deep copy)
-    // 4. insert foreignKey to columns (with proper table and field name)
-    // 5. create TableSchema named <fromTableName>_<toTableName>
-    // 6. insert (all created TableSchema-s) into schema and return
-    return [];
+    const resultSchema: TableSchema[] = [];
+
+    const manyToManyRelationships: Relationship[] = this.relationships.getByType(
+      RelationshipType.manyToMany,
+    );
+
+    manyToManyRelationships.forEach((relationship) => {
+      let columnsFound = 0;
+      let keyColumnForFromTable: Column;
+      let keyColumnForToTable: Column;
+
+      for (let i = 0; i < schema.length; i++) {
+        if (schema[i].name === relationship.fromTable) {
+          keyColumnForFromTable = JSON.parse(
+            JSON.stringify(
+              schema[i].columns.filter((column) => column.isPrimaryKey)[0],
+            ),
+          );
+          columnsFound += 1;
+        } else if (schema[i].name === relationship.toTable) {
+          keyColumnForToTable = JSON.parse(
+            JSON.stringify(
+              schema[i].columns.filter((column) => column.isPrimaryKey)[0],
+            ),
+          );
+          columnsFound += 1;
+        }
+      }
+
+      if (columnsFound === 0) return;
+
+      const keyColumnForFromTableName = JSON.parse(
+        JSON.stringify(keyColumnForFromTable.name),
+      );
+      const keyColumnForToTableName = JSON.parse(
+        JSON.stringify(keyColumnForToTable.name),
+      );
+
+      if (keyColumnForToTable.name === keyColumnForFromTable.name) {
+        keyColumnForFromTable.name = keyColumnForFromTable.name.concat('2');
+        keyColumnForToTable.name = keyColumnForToTable.name.concat('1');
+      }
+
+      keyColumnForFromTable.foreignKey = {
+        columnName: keyColumnForToTableName,
+        tableName: relationship.toTable,
+      };
+      keyColumnForToTable.foreignKey = {
+        columnName: keyColumnForFromTableName,
+        tableName: relationship.fromTable,
+      };
+
+      const newTableSchemaColumns: Column[] = [
+        keyColumnForToTable,
+        keyColumnForFromTable,
+      ];
+
+      const newTableSchema: TableSchema = {
+        name: relationship.fromTable.concat('_', relationship.toTable),
+        columns: newTableSchemaColumns,
+      };
+
+      resultSchema.push(newTableSchema);
+    });
+
+    return resultSchema;
   }
 }
