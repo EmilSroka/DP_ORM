@@ -122,7 +122,6 @@ describe('TableConstructor', () => {
       ['compositionDetails', 'id'],
       ['extraDetails', 'id'],
     ];
-
     schemaAssertion(result, foreignKeyColumns);
   });
 

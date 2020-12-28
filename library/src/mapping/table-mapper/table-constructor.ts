@@ -1,18 +1,22 @@
 import { Tables } from '../../main/metadata-containers/tables';
 import { Relationships } from '../../main/metadata-containers/relationships';
 import { Column, TableSchema } from '../../common/models/database-schema';
+import {
+  DbFieldTypes,
+  DbType,
+  JsFieldTypes,
+  RelationshipFieldType,
+  RelationshipType,
+} from '../../common/models/field-types';
 
 export class TableConstructor {
   private tableNameToForeignKeyColumns: Map<string, Column[]> = new Map();
-
   constructor(private tables: Tables, private relationships: Relationships) {}
-
   getDatabaseScheme(): TableSchema[] {
     const tablesNames = this.getTableMapsNamesInCreationOrder();
     const tableSchemas = tablesNames.map(this.toTableSchema);
     return [];
   }
-
   getTableMapsNamesInCreationOrder(): string[] {
     const result: string[] = this.tables
       .getNames()
@@ -36,37 +40,91 @@ export class TableConstructor {
   }
 
   toTableSchema(tableName: string): TableSchema {
-    // TODO
-    // 1. get TableMap
-    // 2. create TableSchema with name from TableMap
-    // 3. iterate over columns:
-    //    crete Column based on ColumnMap and insert into scheme
-    //    -> columnName = name
-    //    -> isNullable, isUnique and isPrimaryKey are identical
-    //    -> when ColumnMap has type other then RelationshipFieldType - copy
-    //    -> when ColumnMap has type of RelationshipFieldType don't insert column into scheme. instead:
-    //       -> when of type MtoM -> just skip
-    //       -> when of type 1to1
-    //          -> make deep copy of primary columns
-    //          -> set them as foreign key to current table
-    //          -> insert into array in tableNameToForeignKeyColumns (RelationshipFieldType.with as a key)
-    //          ! handle case when entry don't exist yet
-    //       -> when of type 1toM
-    //          -> make deep copy of primary columns
-    //          -> set them as foreign key to current table
-    //          -> set isPrimaryKey to false (only different to 1to1 - DRY)
-    //          -> insert into array in tableNameToForeignKeyColumns (RelationshipFieldType.with as a key)
-    //          ! handle case when entry don't exist yet
-    // 4. check, if exist entry in tableNameToForeignKeyColumns. When exists, insert columns into scheme
-    //    -> when column of given exist already, change name to foreignKeyI, where I ist just number starting from 1
-    // 5. if there aren't primary key columns, then one should be created:
-    //    -> name = idI (where I ist just number starting from 1, get first free),
-    //    -> type = DbType.autoincrement, isNullable = false, isUnique = true, isPrimaryKey = true
-
-    // ! I think, that good idea is to handle RelationshipFieldType at the end,
-    // ! when all primary keys are handled (and taken form tableNameToForeignKeyColumns).
-    // ! Also, it's good idea to store temporary all primary columns in array, to just use them when needed.
-    // ! The above algorithm is indicative only :P
-    return {} as TableSchema;
+    const table = this.tables.get(tableName);
+    let cols: Column[] = table.columns.map((column) => {
+      const relType = column.type as RelationshipFieldType;
+      if (relType) {
+        if (
+          relType.type === RelationshipType.oneToMany ||
+          relType.type === RelationshipType.oneToOne
+        ) {
+          const rel = this.tableNameToForeignKeyColumns.get(relType.with);
+          if (rel) {
+            rel.push({
+              name: column.columnName,
+              type: column.type as JsFieldTypes | DbFieldTypes,
+              isPrimaryKey:
+                relType.type === RelationshipType.oneToOne
+                  ? false
+                  : column.isPrimaryKey,
+              isUnique: column.isUnique,
+              isNullable: column.isNullable,
+              foreignKey: {
+                tableName: tableName,
+                columnName: column.columnName,
+              },
+            });
+          } else {
+            this.tableNameToForeignKeyColumns.set(relType.with, [
+              {
+                name: column.columnName,
+                type: column.type as JsFieldTypes | DbFieldTypes,
+                isPrimaryKey: column.isPrimaryKey,
+                isUnique: column.isUnique,
+                isNullable: column.isNullable,
+                foreignKey: {
+                  tableName: tableName,
+                  columnName: column.columnName,
+                },
+              },
+            ]);
+          }
+        } else if (relType.type === RelationshipType.manyToMany) {
+          return;
+        }
+      } else {
+        return {
+          name: column.columnName,
+          isPrimaryKey: column.isPrimaryKey,
+          isUnique: column.isUnique,
+          isNullable: column.isNullable,
+          fieldName: column.fieldName,
+          type: column.type as JsFieldTypes | DbFieldTypes,
+        } as Column;
+      }
+    });
+    cols = cols.filter((c) => c);
+    const tableSchema: TableSchema = {
+      name: tableName,
+      columns: cols,
+    };
+    const tab = this.tableNameToForeignKeyColumns.get(tableName);
+    let counter = 1;
+    if (tab) {
+      tab.forEach((column) => {
+        let name = column.name;
+        if (
+          tableSchema.columns.some((c) => {
+            return c.name === column.name;
+          })
+        ) {
+          name = 'foreignKey' + counter;
+          counter++;
+        }
+        tableSchema.columns.push({ ...column, name: name });
+      });
+    }
+    const existPrimaryKey = table.columns.some((column) => column.isPrimaryKey);
+    if (!existPrimaryKey) {
+      table.columns.unshift({
+        columnName: 'id' + 1,
+        type: DbType.autoincrement,
+        isNullable: false,
+        isUnique: true,
+        isPrimaryKey: true,
+        fieldName: '',
+      });
+    }
+    return tableSchema as TableSchema;
   }
 }
