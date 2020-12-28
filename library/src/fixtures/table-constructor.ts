@@ -1,4 +1,4 @@
-import { JsType, RelationshipType } from '../common/models/field-types';
+import { DbType, JsType, RelationshipType } from '../common/models/field-types';
 import { TableMap } from '../common/models/table-map';
 
 export const tablesFixtures: {
@@ -163,7 +163,7 @@ export const tablesFixtures: {
       {
         fieldName: 'date',
         columnName: 'date',
-        type: JsType.date,
+        type: DbType.date,
         isPrimaryKey: false,
         isNullable: true,
         isUnique: false,
