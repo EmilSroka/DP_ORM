@@ -27,3 +27,9 @@ export interface RelationshipFieldType {
 }
 
 export type Field = JsFieldTypes | DbFieldTypes | RelationshipFieldType;
+
+export function isRelationshipField(
+  field: Field,
+): field is RelationshipFieldType {
+  return (field as RelationshipFieldType).type != null;
+}
