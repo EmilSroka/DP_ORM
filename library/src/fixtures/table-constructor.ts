@@ -464,3 +464,9 @@ export const tableSchemaFixtures: {
     ],
   },
 };
+
+export const oneToManyForeignKeysFixture = [
+  'compositions',
+  'receivers',
+  'clients',
+];
