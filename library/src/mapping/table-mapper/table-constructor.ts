@@ -2,12 +2,12 @@ import { Tables } from '../../main/metadata-containers/tables';
 import { Relationships } from '../../main/metadata-containers/relationships';
 import { Column, TableSchema } from '../../common/models/database-schema';
 import {
-  DbFieldTypes,
   DbType,
-  JsFieldTypes,
-  RelationshipFieldType,
+  isRelationshipField,
   RelationshipType,
 } from '../../common/models/field-types';
+import { ColumnMap } from '../../common/models/column-map';
+import { deepCopy } from '../../utils/copy';
 
 export class TableConstructor {
   private tableNameToForeignKeyColumns: Map<string, Column[]> = new Map();
@@ -40,91 +40,138 @@ export class TableConstructor {
   }
 
   toTableSchema(tableName: string): TableSchema {
-    const table = this.tables.get(tableName);
-    let cols: Column[] = table.columns.map((column) => {
-      const relType = column.type as RelationshipFieldType;
-      if (relType) {
-        if (
-          relType.type === RelationshipType.oneToMany ||
-          relType.type === RelationshipType.oneToOne
-        ) {
-          const rel = this.tableNameToForeignKeyColumns.get(relType.with);
-          if (rel) {
-            rel.push({
-              name: column.columnName,
-              type: column.type as JsFieldTypes | DbFieldTypes,
-              isPrimaryKey:
-                relType.type === RelationshipType.oneToOne
-                  ? false
-                  : column.isPrimaryKey,
-              isUnique: column.isUnique,
-              isNullable: column.isNullable,
-              foreignKey: {
-                tableName: tableName,
-                columnName: column.columnName,
-              },
-            });
-          } else {
-            this.tableNameToForeignKeyColumns.set(relType.with, [
-              {
-                name: column.columnName,
-                type: column.type as JsFieldTypes | DbFieldTypes,
-                isPrimaryKey: column.isPrimaryKey,
-                isUnique: column.isUnique,
-                isNullable: column.isNullable,
-                foreignKey: {
-                  tableName: tableName,
-                  columnName: column.columnName,
-                },
-              },
-            ]);
-          }
-        } else if (relType.type === RelationshipType.manyToMany) {
-          return;
-        }
-      } else {
-        return {
-          name: column.columnName,
-          isPrimaryKey: column.isPrimaryKey,
-          isUnique: column.isUnique,
-          isNullable: column.isNullable,
-          fieldName: column.fieldName,
-          type: column.type as JsFieldTypes | DbFieldTypes,
-        } as Column;
-      }
-    });
-    cols = cols.filter((c) => c);
-    const tableSchema: TableSchema = {
-      name: tableName,
-      columns: cols,
+    const tableMap = this.tables.get(tableName);
+
+    const { primaryKeys, relationships, others } = split(tableMap.columns);
+
+    const primaryKeyColumns = mapToColumns(primaryKeys);
+    const othersColumns = mapToColumns(others);
+
+    getForeignKeys(this.tableNameToForeignKeyColumns);
+
+    if (primaryKeyColumns.length === 0) {
+      createPrimaryKey();
+    }
+
+    setForeignKeysFromRelationships(this.tableNameToForeignKeyColumns);
+
+    return {
+      name: tableMap.tableName,
+      columns: [...primaryKeyColumns, ...othersColumns],
     };
-    const tab = this.tableNameToForeignKeyColumns.get(tableName);
-    let counter = 1;
-    if (tab) {
-      tab.forEach((column) => {
-        let name = column.name;
-        if (
-          tableSchema.columns.some((c) => {
-            return c.name === column.name;
-          })
-        ) {
-          name = 'foreignKey' + counter;
-          counter++;
+
+    function split(
+      columnMaps: ColumnMap[],
+    ): {
+      primaryKeys: ColumnMap[];
+      relationships: ColumnMap[];
+      others: ColumnMap[];
+    } {
+      const primaryKeys = [];
+      const relationships = [];
+      const others = [];
+      for (const columnMap of columnMaps) {
+        if (columnMap.isPrimaryKey) {
+          primaryKeys.push(columnMap);
+        } else if (isRelationshipField(columnMap.type)) {
+          relationships.push(columnMap);
+        } else {
+          others.push(columnMap);
         }
-        tableSchema.columns.push({ ...column, name: name });
+      }
+
+      return {
+        primaryKeys,
+        relationships,
+        others,
+      };
+    }
+
+    function mapToColumns(columnMaps: ColumnMap[]): Column[] {
+      return columnMaps.map((columnMap) => {
+        const { fieldName: _, columnName: name, type, ...rest } = columnMap;
+        if (isRelationshipField(type)) return {} as Column;
+        return { name, type, ...rest };
       });
     }
-    const existPrimaryKey = table.columns.some((column) => column.isPrimaryKey);
-    if (!existPrimaryKey) {
-      table.columns.unshift({
-        columnName: 'id' + 1,
+
+    function getForeignKeys(map: Map<string, Column[]>) {
+      const foreignKeyColumns = map.get(tableMap.tableName) || [];
+      for (const column of foreignKeyColumns) {
+        if (
+          containsColumnOfGivenName(
+            [...primaryKeyColumns, ...othersColumns],
+            column.name,
+          )
+        ) {
+          const index = getFirstFreeIndex(
+            [...primaryKeyColumns, ...othersColumns],
+            'foreignKey',
+          );
+          column.name = `foreignKey${index}`;
+        }
+        if (column.isPrimaryKey) {
+          primaryKeyColumns.push(column);
+        } else {
+          othersColumns.push(column);
+        }
+      }
+    }
+
+    function createPrimaryKey() {
+      const index = getFirstFreeIndex(
+        [...primaryKeyColumns, ...othersColumns],
+        'id',
+      );
+      primaryKeyColumns.push({
+        name: `id${index}`,
         type: DbType.autoincrement,
         isNullable: false,
         isUnique: true,
         isPrimaryKey: true,
-        fieldName: '',
       });
     }
-    return tableSchema as TableSchema;
+
+    function setForeignKeysFromRelationships(map: Map<string, Column[]>) {
+      for (const relationship of relationships) {
+        if (!isRelationshipField(relationship.type)) continue;
+
+        const type = relationship.type.type;
+        const tableName = relationship.type.with;
+
+        if (type === RelationshipType.manyToMany) continue;
+
+        if (!map.has(tableName)) map.set(tableName, []);
+
+        const target = map.get(tableName);
+        for (const primaryKey of primaryKeyColumns) {
+          const copy = deepCopy(primaryKey);
+          copy.foreignKey = {
+            columnName: primaryKey.name,
+            tableName: tableMap.tableName,
+          };
+          if (type === RelationshipType.oneToMany) copy.isPrimaryKey = false;
+
+          target.push(copy);
+        }
+      }
+    }
+
+    function containsColumnOfGivenName(
+      columns: Column[],
+      name: string,
+    ): boolean {
+      return columns.some((column) => {
+        return column.name === name;
+      });
+    }
+
+    function getFirstFreeIndex(columns: Column[], prefix: string): number {
+      let index = 1;
+      while (containsColumnOfGivenName(columns, `${prefix}${index}`)) {
+        index++;
+      }
+      return index;
+    }
   }
 }
