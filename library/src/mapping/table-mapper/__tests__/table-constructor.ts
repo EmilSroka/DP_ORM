@@ -3,6 +3,7 @@ import { Relationships } from '../../../main/metadata-containers/relationships';
 import {
   hasForeignKeyFixture,
   hasForeignKeyFromFixture,
+  oneToManyForeignKeysFixture,
   relationshipsByTypeFixture,
   relationshipsFixture,
   tableSchemaFixtures,
@@ -109,7 +110,18 @@ describe('TableConstructor', () => {
       ['orders', 'foreignKey2'],
     ];
 
-    schemaAssertion(result, foreignKeyColumns);
+    const resultForeignKeys = [];
+    for (const [tableName, columnName] of foreignKeyColumns) {
+      resultForeignKeys.push(
+        result
+          .find(({ name }) => name === tableName)
+          .columns.find(({ name }) => name === columnName).foreignKey,
+      );
+    }
+    for (const { tableName, columnName } of resultForeignKeys) {
+      expect(columnName).toBe('id');
+      expect(oneToManyForeignKeysFixture).toContain(tableName);
+    }
   });
 
   it('method: toTableSchema should insert foreign keys (1to1) to proper tables', () => {
