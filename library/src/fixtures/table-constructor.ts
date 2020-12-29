@@ -245,37 +245,37 @@ export const relationshipsByTypeFixture = {
   [RelationshipType.oneToMany]: [
     {
       type: RelationshipType.oneToMany,
-      fromTable: 'clients',
-      toTable: 'orders',
+      fromTableName: 'clients',
+      toTableName: 'orders',
     },
     {
       type: RelationshipType.oneToMany,
-      fromTable: 'receivers',
-      toTable: 'orders',
+      fromTableName: 'receivers',
+      toTableName: 'orders',
     },
     {
       type: RelationshipType.oneToMany,
-      fromTable: 'compositions',
-      toTable: 'orders',
+      fromTableName: 'compositions',
+      toTableName: 'orders',
     },
   ],
   [RelationshipType.oneToOne]: [
     {
       type: RelationshipType.oneToOne,
-      fromTable: 'compositions',
-      toTable: 'compositionDetails',
+      fromTableName: 'compositions',
+      toTableName: 'compositionDetails',
     },
     {
       type: RelationshipType.oneToOne,
-      fromTable: 'compositionDetails',
-      toTable: 'extraDetails',
+      fromTableName: 'compositionDetails',
+      toTableName: 'extraDetails',
     },
   ],
   [RelationshipType.manyToMany]: [
     {
       type: RelationshipType.manyToMany,
-      fromTable: 'compositions',
-      toTable: 'compositionCreators',
+      fromTableName: 'compositions',
+      toTableName: 'compositionCreators',
     },
   ],
 };
@@ -498,7 +498,7 @@ export const linkTablesSchemaFixtures: {
   },
 };
 
-export const compositionDetailsWithDifferentKey = {
+export const compositionDetailsWithDifferentKey: TableSchema = {
   name: 'compositionDetails',
   columns: [
     {

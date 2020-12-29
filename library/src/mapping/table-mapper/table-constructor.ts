@@ -179,71 +179,55 @@ export class TableConstructor {
   }
 
   insertLinkTables(schema: TableSchema[]): TableSchema[] {
-    const resultSchema: TableSchema[] = [];
-
-    const manyToManyRelationships: Relationship[] = this.relationships.getByType(
+    const relationships = this.relationships.getByType(
       RelationshipType.manyToMany,
     );
 
-    manyToManyRelationships.forEach((relationship) => {
-      let columnsFound = 0;
-      let keyColumnForFromTable: Column;
-      let keyColumnForToTable: Column;
+    for (const { fromTableName, toTableName } of relationships) {
+      const fromTable = schema.find(({ name }) => name === fromTableName);
+      const toTable = schema.find(({ name }) => name === toTableName);
+      const keysFromTable = deepCopy(
+        fromTable.columns.filter(isPrimaryKey),
+      ) as Column[];
+      const keysToTable = deepCopy(
+        toTable.columns.filter(isPrimaryKey),
+      ) as Column[];
 
-      for (let i = 0; i < schema.length; i++) {
-        if (schema[i].name === relationship.fromTable) {
-          keyColumnForFromTable = JSON.parse(
-            JSON.stringify(
-              schema[i].columns.filter((column) => column.isPrimaryKey)[0],
-            ),
-          );
-          columnsFound += 1;
-        } else if (schema[i].name === relationship.toTable) {
-          keyColumnForToTable = JSON.parse(
-            JSON.stringify(
-              schema[i].columns.filter((column) => column.isPrimaryKey)[0],
-            ),
-          );
-          columnsFound += 1;
+      for (const key of keysFromTable) {
+        key.foreignKey = {
+          columnName: key.name,
+          tableName: fromTableName,
+        };
+      }
+
+      for (const key of keysToTable) {
+        key.foreignKey = {
+          columnName: key.name,
+          tableName: toTableName,
+        };
+      }
+
+      for (const keyFromTable of keysFromTable) {
+        for (const keyToTable of keysToTable) {
+          if (keyFromTable.name === keyToTable.name) {
+            keyFromTable.name = `${keyFromTable.name}1`;
+            keyToTable.name = `${keyToTable.name}2`;
+          }
         }
       }
 
-      if (columnsFound === 0) return;
-
-      const keyColumnForFromTableName = JSON.parse(
-        JSON.stringify(keyColumnForFromTable.name),
-      );
-      const keyColumnForToTableName = JSON.parse(
-        JSON.stringify(keyColumnForToTable.name),
-      );
-
-      if (keyColumnForToTable.name === keyColumnForFromTable.name) {
-        keyColumnForFromTable.name = keyColumnForFromTable.name.concat('2');
-        keyColumnForToTable.name = keyColumnForToTable.name.concat('1');
-      }
-
-      keyColumnForFromTable.foreignKey = {
-        columnName: keyColumnForToTableName,
-        tableName: relationship.toTable,
-      };
-      keyColumnForToTable.foreignKey = {
-        columnName: keyColumnForFromTableName,
-        tableName: relationship.fromTable,
+      const linkTable = {
+        name: `${fromTableName}_${toTableName}`,
+        columns: [...keysFromTable, ...keysToTable],
       };
 
-      const newTableSchemaColumns: Column[] = [
-        keyColumnForToTable,
-        keyColumnForFromTable,
-      ];
+      schema.push(linkTable);
+    }
 
-      const newTableSchema: TableSchema = {
-        name: relationship.fromTable.concat('_', relationship.toTable),
-        columns: newTableSchemaColumns,
-      };
+    return schema;
 
-      resultSchema.push(newTableSchema);
-    });
-
-    return resultSchema;
+    function isPrimaryKey({ isPrimaryKey }: Column): boolean {
+      return isPrimaryKey;
+    }
   }
 }

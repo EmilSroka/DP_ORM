@@ -36,13 +36,15 @@ describe('Relationships (container)', () => {
 
   it('should allow to check if table of given name has foreign key', () => {
     expect(
-      relationships.hasForeignKey(relationshipsOneToOneFixture[0].toTable),
+      relationships.hasForeignKey(relationshipsOneToOneFixture[0].toTableName),
     ).toBeTruthy();
     expect(
-      relationships.hasForeignKey(relationshipOneToManyFixture[0].toTable),
+      relationships.hasForeignKey(relationshipOneToManyFixture[0].toTableName),
     ).toBeTruthy();
     expect(
-      relationships.hasForeignKey(relationshipOneToManyFixture[0].fromTable),
+      relationships.hasForeignKey(
+        relationshipOneToManyFixture[0].fromTableName,
+      ),
     ).toBeFalsy();
   });
 
