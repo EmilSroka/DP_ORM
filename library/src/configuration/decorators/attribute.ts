@@ -24,8 +24,8 @@ export function Attribute(
     if (!isRelationshipField(columnMap.type)) return;
     const relation = {
       type: columnMap.type.type,
-      toTable: columnMap.type.with,
-      fromTable: tableMap.tableName,
+      toTableName: columnMap.type.with,
+      fromTableName: tableMap.tableName,
     };
     if (isExisting(relation)) return;
     relationships.add(relation);
@@ -47,8 +47,8 @@ export function Attribute(
     const manyToManyRelations = relationships.getByType(relation.type);
     return manyToManyRelations.some(
       (rel) =>
-        rel.fromTable === relation.toTable &&
-        rel.toTable === relation.fromTable,
+        rel.fromTableName === relation.toTableName &&
+        rel.toTableName === relation.fromTableName,
     );
   }
 }

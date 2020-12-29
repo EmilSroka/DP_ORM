@@ -25,14 +25,14 @@ export class Relationships {
 
     if (relationship.type === RelationshipType.manyToMany) return;
 
-    this.tableNamesWithForeignKey.add(relationship.toTable);
-    if (this.tableNameToAssociatedTableNames.has(relationship.fromTable)) {
+    this.tableNamesWithForeignKey.add(relationship.toTableName);
+    if (this.tableNameToAssociatedTableNames.has(relationship.fromTableName)) {
       this.tableNameToAssociatedTableNames
-        .get(relationship.fromTable)
-        .push(relationship.toTable);
+        .get(relationship.fromTableName)
+        .push(relationship.toTableName);
     } else {
-      this.tableNameToAssociatedTableNames.set(relationship.fromTable, [
-        relationship.toTable,
+      this.tableNameToAssociatedTableNames.set(relationship.fromTableName, [
+        relationship.toTableName,
       ]);
     }
   }

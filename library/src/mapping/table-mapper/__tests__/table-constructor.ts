@@ -81,10 +81,7 @@ describe('TableConstructor', () => {
 
   it('method: insertLinkTables should change columns names, only when both primary keys have the same name', () => {
     const sameNameInput = Object.values(tableSchemaFixtures);
-    const differentNameInput = {
-      ...sameNameInput,
-      compositionDetails: compositionDetailsWithDifferentKey,
-    };
+    const differentNameInput = Object.values(difLinkTablesSchemaFixtures);
     const sameNameResult = tableConstructor.insertLinkTables(sameNameInput);
     const differentNameResult = tableConstructor.insertLinkTables(
       differentNameInput,
@@ -111,22 +108,6 @@ describe('TableConstructor', () => {
       difLinkTablesSchemaFixtures,
     );
   });
-
-  const schemaAssertion = (
-    result: TableSchema[],
-    toCheck: [string, string][],
-    fixture = tableSchemaFixtures,
-  ) => {
-    for (const [tableName, columnName] of toCheck) {
-      const resultColumn = result
-        .find(({ name }) => name === tableName)
-        .columns.find(({ name }) => name === columnName);
-      const expectedColumn = fixture[tableName].columns.find(
-        ({ name }) => name === columnName,
-      );
-      expect(resultColumn).toEqual(expectedColumn);
-    }
-  };
 
   it('method: toTableSchema should map non key ColumnMaps from TableMap to TableSchema columns', () => {
     const order = tableConstructor.getTableMapsNamesInCreationOrder();
@@ -214,12 +195,13 @@ describe('TableConstructor', () => {
   const schemaAssertion = (
     result: TableSchema[],
     toCheck: [string, string][],
+    fixture = tableSchemaFixtures,
   ) => {
     for (const [tableName, columnName] of toCheck) {
       const resultColumn = result
         .find(({ name }) => name === tableName)
         .columns.find(({ name }) => name === columnName);
-      const expectedColumn = tableSchemaFixtures[tableName].columns.find(
+      const expectedColumn = fixture[tableName].columns.find(
         ({ name }) => name === columnName,
       );
       expect(resultColumn).toEqual(expectedColumn);

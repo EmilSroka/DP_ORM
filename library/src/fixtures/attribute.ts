@@ -109,22 +109,22 @@ export const relationshipsFixtures: {
 } = {
   oneToManyFixture: {
     type: RelationshipType.oneToMany,
-    fromTable: 'abc',
-    toTable: 'xyz',
+    fromTableName: 'abc',
+    toTableName: 'xyz',
   },
   manyToManyFailFixture: {
     type: RelationshipType.manyToMany,
-    fromTable: 'ppp',
-    toTable: 'abc',
+    fromTableName: 'ppp',
+    toTableName: 'abc',
   },
   manyToManyFixture: {
     type: RelationshipType.manyToMany,
-    fromTable: 'abc',
-    toTable: 'xyz',
+    fromTableName: 'abc',
+    toTableName: 'xyz',
   },
   oneToOneFixture: {
     type: RelationshipType.oneToOne,
-    fromTable: 'abc',
-    toTable: 'xyz',
+    fromTableName: 'abc',
+    toTableName: 'xyz',
   },
 };
