@@ -6,4 +6,12 @@ export interface PostgreSQLConfiguration {
     host: string;
     port?: number;
   };
+  create?: CreateDetails;
 }
+
+export interface CreateDetails {
+  number?: { type: NumericType; precision: number; scale?: number };
+  stringMaxSize?: number;
+}
+
+export type NumericType = 'float' | 'numeric';

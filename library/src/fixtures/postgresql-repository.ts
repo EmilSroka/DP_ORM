@@ -64,5 +64,26 @@ export const multiOutput = {
     'Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.',
     0.26,
     36,
+import { Column, TableSchema } from '../common/models/database-schema';
+import { DbType, JsType } from '../common/models/field-types';
+
+export const TableSchemaFixture: TableSchema = {
+  name: 'testName',
+  columns: [
+    {
+      type: JsType.string,
+    } as Column,
+    {
+      type: JsType.number,
+    } as Column,
+    {
+      type: JsType.boolean,
+    } as Column,
+    {
+      type: DbType.autoincrement,
+    } as Column,
+    {
+      type: DbType.date,
+    } as Column,
   ],
 };

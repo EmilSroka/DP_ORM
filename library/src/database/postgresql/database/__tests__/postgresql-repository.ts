@@ -65,3 +65,51 @@ describe('PostgresqlRepository', () => {
     ).resolves.toBe(insertPromiseValue);
   });
 });
+import { CreateQueryPartFactory } from '../create-query-part';
+import { TableSchemaFixture } from '../../../../fixtures/postgresql-repository';
+
+describe('PostgresqlRepository', () => {
+  let repository: PostgresqlRepository;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    repository = new PostgresqlRepository(
+      PoolClientMock,
+      CreateQueryPartFactoryMock,
+    );
+  });
+
+  it('method: create should get query part for every column from proper CreateQueryPart taken from CreateQueryPartFactory', async () => {
+    expect.assertions(2 + TableSchemaFixture.columns.length);
+    await repository.create(TableSchemaFixture);
+    expect(getPartMock).toBeCalledTimes(TableSchemaFixture.columns.length);
+    expect(getMock).toBeCalledTimes(TableSchemaFixture.columns.length);
+
+    for (const column of TableSchemaFixture.columns) {
+      expect(getMock).toBeCalledWith(column);
+    }
+  });
+
+  it('method: create should create table in database by calling proper query on PoolClient', async () => {
+    expect.assertions(1);
+    await repository.create(TableSchemaFixture);
+    const expected = `CREATE TABLE ${TableSchemaFixture.name} (${', '.repeat(
+      TableSchemaFixture.columns.length - 1,
+    )});`;
+    expect(queryMock).toHaveBeenCalledWith(expected);
+  });
+});
+
+const queryMock = jest.fn((_) => null);
+const getPartMock = jest.fn((_) => '');
+const getMock = jest.fn((_) => ({
+  getPart: getPartMock,
+}));
+
+const PoolClientMock = ({
+  query: queryMock,
+} as unknown) as PoolClient;
+
+const CreateQueryPartFactoryMock = ({
+  get: getMock,
+} as unknown) as CreateQueryPartFactory;
