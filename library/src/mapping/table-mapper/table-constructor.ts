@@ -1,7 +1,6 @@
 import { Tables } from '../../main/metadata-containers/tables';
 import { Relationships } from '../../main/metadata-containers/relationships';
 import { Column, TableSchema } from '../../common/models/database-schema';
-import { Relationship } from '../../main/models/relationships';
 import {
   DbType,
   isRelationshipField,
@@ -17,7 +16,8 @@ export class TableConstructor {
   getDatabaseScheme(): TableSchema[] {
     const tablesNames = this.getTableMapsNamesInCreationOrder();
     const tableSchemas = tablesNames.map(this.toTableSchema);
-    return [];
+    this.insertLinkTables(tableSchemas);
+    return tableSchemas;
   }
 
   getTableMapsNamesInCreationOrder(): string[] {

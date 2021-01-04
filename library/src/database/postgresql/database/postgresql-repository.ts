@@ -1,7 +1,12 @@
 import { PoolClient } from 'pg';
+import { TableSchema } from '../../../common/models/database-schema';
+import { CreateQueryPartFactory } from './create-query-part';
 
 export class PostgresqlRepository {
-  constructor(private client: PoolClient) {}
+  constructor(
+    private client: PoolClient,
+    private partsFactory: CreateQueryPartFactory,
+  ) {}
 
   insert(tableName: string, fields: string[], values: any[][]): Promise<any> {
     let queryText = `INSERT INTO ${tableName} (${fields.join(', ')})`;
@@ -32,5 +37,14 @@ export class PostgresqlRepository {
     };
 
     return this.client.query(queryObj);
+  }
+
+  async create(schema: TableSchema): Promise<any> {
+    const parts = schema.columns.map((column) =>
+      this.partsFactory.get(column).getPart(),
+    );
+    const query = `CREATE TABLE ${schema.name} (${parts.join(', ')});`;
+
+    return this.client.query(query);
   }
 }

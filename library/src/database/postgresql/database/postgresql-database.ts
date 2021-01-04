@@ -1,7 +1,13 @@
 import { Pool } from 'pg';
-import { PostgreSQLConfiguration } from '../model/configuration';
+import { NumericType, PostgreSQLConfiguration } from '../model/configuration';
 import { Database } from '../../../common/models/database';
 import { PostgresqlRepository } from './postgresql-repository';
+import { CreateQueryPartFactory } from './create-query-part';
+
+const defaultCreateDetails = {
+  number: { type: 'float' as NumericType, precision: 53 },
+  stringMaxSize: 512,
+};
 
 export class PostgresqlDatabase implements Database {
   private pool: Pool;
@@ -23,7 +29,11 @@ export class PostgresqlDatabase implements Database {
 
     const client = await this.pool.connect();
     try {
-      const repository = new PostgresqlRepository(client);
+      const createColumnFactory = new CreateQueryPartFactory({
+        ...defaultCreateDetails,
+        ...this.settings.create,
+      });
+      const repository = new PostgresqlRepository(client, createColumnFactory);
       await client.query('BEGIN');
       for (const action of actions) {
         const result = await action(repository);

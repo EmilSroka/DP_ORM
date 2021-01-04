@@ -11,17 +11,23 @@ import {
   valuesBasicInput,
   valuesMultiInput,
 } from '../../../../fixtures/postgresql-repository';
+import { CreateQueryPartFactory } from '../create-query-part';
+import { TableSchemaFixture } from '../../../../fixtures/postgresql-repository';
 import Mock = jest.Mock;
 
-const poolClientMock = ({
-  query: jest.fn(() => Promise.resolve(insertPromiseValue)),
-} as unknown) as PoolClient;
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('PostgresqlRepository', () => {
-  const repository = new PostgresqlRepository(poolClientMock);
+  let repository: PostgresqlRepository;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    repository = new PostgresqlRepository(
+      poolClientMock,
+      createQueryPartFactoryMock,
+    );
   });
 
   it('method: insert should call query on PoolClient with proper "Query config object"', async () => {
@@ -64,20 +70,6 @@ describe('PostgresqlRepository', () => {
       ),
     ).resolves.toBe(insertPromiseValue);
   });
-});
-import { CreateQueryPartFactory } from '../create-query-part';
-import { TableSchemaFixture } from '../../../../fixtures/postgresql-repository';
-
-describe('PostgresqlRepository', () => {
-  let repository: PostgresqlRepository;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    repository = new PostgresqlRepository(
-      PoolClientMock,
-      CreateQueryPartFactoryMock,
-    );
-  });
 
   it('method: create should get query part for every column from proper CreateQueryPart taken from CreateQueryPartFactory', async () => {
     expect.assertions(2 + TableSchemaFixture.columns.length);
@@ -100,16 +92,16 @@ describe('PostgresqlRepository', () => {
   });
 });
 
-const queryMock = jest.fn((_) => null);
+const queryMock = jest.fn((_) => Promise.resolve(insertPromiseValue));
 const getPartMock = jest.fn((_) => '');
 const getMock = jest.fn((_) => ({
   getPart: getPartMock,
 }));
 
-const PoolClientMock = ({
+const poolClientMock = ({
   query: queryMock,
 } as unknown) as PoolClient;
 
-const CreateQueryPartFactoryMock = ({
+const createQueryPartFactoryMock = ({
   get: getMock,
 } as unknown) as CreateQueryPartFactory;

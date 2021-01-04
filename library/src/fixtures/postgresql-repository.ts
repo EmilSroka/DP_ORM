@@ -1,3 +1,6 @@
+import { Column, TableSchema } from '../common/models/database-schema';
+import { DbType, JsType } from '../common/models/field-types';
+
 export const insertPromiseValue = 'asdwefjnsakh';
 
 export const tableNameBasicInput = 'users';
@@ -64,8 +67,8 @@ export const multiOutput = {
     'Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.',
     0.26,
     36,
-import { Column, TableSchema } from '../common/models/database-schema';
-import { DbType, JsType } from '../common/models/field-types';
+  ],
+};
 
 export const TableSchemaFixture: TableSchema = {
   name: 'testName',

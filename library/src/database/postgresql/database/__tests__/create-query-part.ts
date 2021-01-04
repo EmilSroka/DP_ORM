@@ -84,7 +84,6 @@ describe('AbstractCreateQueryPart', () => {
       const { columnName, parts } = queryForeignKeyOutputFixture;
       for (const part of parts) {
         const regex = RegExp(`${columnName}.*${part}`);
-        console.log(foreignKeyResult, part, regex);
         expect(regex.test(foreignKeyResult)).toBeTruthy();
       }
     }
