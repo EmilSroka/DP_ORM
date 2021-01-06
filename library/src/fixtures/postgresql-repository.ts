@@ -27,6 +27,14 @@ export const valuesMultiInput = [
     0,
   ],
   [
+    'M99',
+    'Mleczny Raj',
+    'mleczna',
+    'Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.',
+    0.26,
+    36,
+  ],
+  [
     'M98',
     'Mleczny Raj',
     'mleczna',
@@ -36,13 +44,20 @@ export const valuesMultiInput = [
   ],
 ];
 export const multiOutput = {
-  text: /INSERT INTO czekoladki ?\(idczekoladki, ?nazwa, ?czekolada, ?opis, ?koszt, ?masa\) VALUES\(\$1, ?\$2, ?\$3, ?\$4, ?\$5, ?\$6\), \(\$7, ?\$8, ?\$9, ?\$10, ?\$11, ?\$12\)/,
+  text: /INSERT INTO czekoladki ?\(idczekoladki, ?nazwa, ?czekolada, ?opis, ?koszt, ?masa\) VALUES\(\$1, ?\$2, ?\$3, ?\$4, ?\$5, ?\$6\), \(\$7, ?\$8, ?\$9, ?\$10, ?\$11, ?\$12\), \(\$13, ?\$14, ?\$15, ?\$16, ?\$17, ?\$18\)/,
   values: [
     'X91',
     'Nieznana Nieznajoma',
     null,
     'Niewidzialna czekoladka wspomagajaca odchudzanie.',
     0.26,
+    0,
+    'M99',
+    'Mleczny Raj',
+    'mleczna',
+    'Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.',
+    0.26,
+    36,
     0,
     'M98',
     'Mleczny Raj',
