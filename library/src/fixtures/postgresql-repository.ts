@@ -58,7 +58,6 @@ export const multiOutput = {
     'Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.',
     0.26,
     36,
-    0,
     'M98',
     'Mleczny Raj',
     'mleczna',
