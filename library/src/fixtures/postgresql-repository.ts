@@ -3,6 +3,8 @@ import { DbType, JsType } from '../common/models/field-types';
 import { Condition } from '../database/postgresql/model/condition';
 
 type insertQueryInput = [string, string[], Condition];
+type updateQueryInput = [string, string[], any[], Condition];
+type deleteQueryInput = [string, Condition];
 
 export const insertPromiseValue = 'asdwefjnsakh';
 
@@ -102,3 +104,22 @@ export const selectQueryInputFixture: insertQueryInput = [
 
 export const selectQueryOutputFuture =
   'SELECT c1, c2, c3, cxD FROM table_Name WHERE 1 AND 2;';
+
+export const updateQueryInputFixture: updateQueryInput = [
+  'tName',
+  ['c1', 'c2', 'c3', 'cxD'],
+  ['string', 22, 22.2, true],
+  { toString: () => '1 AND 2' },
+];
+
+export const updateQueryOutputFuture = {
+  text: /UPDATE tName SET c1 ?= ?\$1 ?, ?c2 ?= ?\$2, ?c3 ?= ?\$3, ?cxD ?= ?\$4 WHERE 1 AND 2;/,
+  values: ['string', 22, 22.2, true],
+};
+
+export const deleteQueryInputFixture: deleteQueryInput = [
+  'ttName',
+  { toString: () => '1 OR ! 2' },
+];
+
+export const deleteQueryOutputFuture = 'DELETE FROM ttName WHERE 1 OR ! 2;';

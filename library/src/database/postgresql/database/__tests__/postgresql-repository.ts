@@ -12,6 +12,10 @@ import {
   valuesMultiInput,
   selectQueryInputFixture,
   selectQueryOutputFuture,
+  deleteQueryInputFixture,
+  deleteQueryOutputFuture,
+  updateQueryInputFixture,
+  updateQueryOutputFuture,
 } from '../../../../fixtures/postgresql-repository';
 import { CreateQueryPartFactory } from '../create-query-part';
 import { TableSchemaFixture } from '../../../../fixtures/postgresql-repository';
@@ -100,6 +104,26 @@ describe('PostgresqlRepository', () => {
     ).resolves.toBeTruthy();
     expect(poolClientMock.query).toHaveBeenCalledTimes(1);
     expect(poolClientMock.query).toHaveBeenCalledWith(selectQueryOutputFuture);
+  });
+
+  it(`method: update should create proper "query config object" and pass it to PoolClient's query method`, async () => {
+    expect.assertions(4);
+    await expect(
+      repository.update(...updateQueryInputFixture),
+    ).resolves.toBeTruthy();
+    expect(poolClientMock.query).toHaveBeenCalledTimes(1);
+    const output = (poolClientMock.query as Mock).mock.calls[0][0];
+    expect(updateQueryOutputFuture.text.test(output.text)).toBeTruthy();
+    expect(output.values).toEqual(updateQueryOutputFuture.values);
+  });
+
+  it("method: delete should create proper query string and pass it to PoolClient's query method", async () => {
+    expect.assertions(3);
+    await expect(
+      repository.delete(...deleteQueryInputFixture),
+    ).resolves.toBeTruthy();
+    expect(poolClientMock.query).toHaveBeenCalledTimes(1);
+    expect(poolClientMock.query).toHaveBeenCalledWith(deleteQueryOutputFuture);
   });
 });
 

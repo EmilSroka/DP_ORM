@@ -66,4 +66,28 @@ export class PostgresqlRepository {
 
     return this.client.query(query);
   }
+
+  update(
+    tableName: string,
+    fieldNames: string[],
+    values: any[],
+    condition: Condition,
+  ): Promise<any> {
+    // TODO:
+    // 1. create "query config object" for update query. eg:
+    //    text: UPDATE <tableName> SET <fieldName1> = $1, <fieldName2> = $2 WHERE <condition.toString()>;
+    //    values: values parameter
+    // 2. call query with "query config object" as argument, and return it's result
+    // additional link, might be helpful:
+    // https://node-postgres.com/features/queries
+    return Promise.resolve();
+  }
+
+  delete(tableName: string, condition: Condition): Promise<any> {
+    // TODO:
+    // 1. create query text:
+    //    DELETE FROM <tableName> WHERE <condition.toString()>;
+    // 2. call query with created text as argument, and return it's result
+    return Promise.resolve();
+  }
 }
