@@ -1,5 +1,8 @@
 import { Column, TableSchema } from '../common/models/database-schema';
 import { DbType, JsType } from '../common/models/field-types';
+import { Condition } from '../database/postgresql/model/condition';
+
+type insertQueryInput = [string, string[], Condition];
 
 export const insertPromiseValue = 'asdwefjnsakh';
 
@@ -90,3 +93,11 @@ export const TableSchemaFixture: TableSchema = {
     } as Column,
   ],
 };
+
+export const selectQueryInputFixture: insertQueryInput = [
+  'table_Name',
+  ['c1', 'c2', 'c3', 'cxD'],
+  { toString: () => '1 AND 2' },
+];
+
+export const selectQueryOutputFuture = 'SELECT FROM table_Name WHERE 1 AND 2;';
