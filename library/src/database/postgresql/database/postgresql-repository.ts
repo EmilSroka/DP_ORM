@@ -1,6 +1,7 @@
-import { PoolClient } from 'pg';
+import { PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { TableSchema } from '../../../common/models/database-schema';
 import { CreateQueryPartFactory } from './create-query-part';
+import { Condition } from '../model/condition';
 
 export class PostgresqlRepository {
   constructor(
@@ -46,5 +47,17 @@ export class PostgresqlRepository {
     const query = `CREATE TABLE ${schema.name} (${parts.join(', ')});`;
 
     return this.client.query(query);
+  }
+
+  select(
+    tableName: string,
+    fieldNames: string[],
+    condition: Condition,
+  ): Promise<QueryResult<QueryResultRow>> {
+    // TODO:
+    // 1. create SELECT query:
+    //    SELECT <fieldNames> FROM <tableName> WHERE <condition.toString()>;
+    // 2. call client.query method with created string as argument and return it's result
+    return Promise.resolve({} as QueryResult);
   }
 }

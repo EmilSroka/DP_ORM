@@ -10,6 +10,8 @@ import {
   tableNameMultiInput,
   valuesBasicInput,
   valuesMultiInput,
+  selectQueryInputFixture,
+  selectQueryOutputFuture,
 } from '../../../../fixtures/postgresql-repository';
 import { CreateQueryPartFactory } from '../create-query-part';
 import { TableSchemaFixture } from '../../../../fixtures/postgresql-repository';
@@ -89,6 +91,15 @@ describe('PostgresqlRepository', () => {
       TableSchemaFixture.columns.length - 1,
     )});`;
     expect(queryMock).toHaveBeenCalledWith(expected);
+  });
+
+  it("method: select should create proper query string and pass it to PoolClient's query method", async () => {
+    expect.assertions(3);
+    await expect(
+      repository.select(...selectQueryInputFixture),
+    ).resolves.toBeTruthy();
+    expect(poolClientMock.query).toHaveBeenCalledTimes(1);
+    expect(poolClientMock.query).toHaveBeenCalledWith(selectQueryOutputFuture);
   });
 });
 
