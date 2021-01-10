@@ -54,10 +54,14 @@ export class PostgresqlRepository {
     fieldNames: string[],
     condition: Condition,
   ): Promise<QueryResult<QueryResultRow>> {
-    // TODO:
-    // 1. create SELECT query:
-    //    SELECT <fieldNames> FROM <tableName> WHERE <condition.toString()>;
-    // 2. call client.query method with created string as argument and return it's result
-    return Promise.resolve({} as QueryResult);
+    let query = 'SELECT';
+
+    if (fieldNames.length > 0) {
+      query += ' ';
+    }
+
+    query += `${fieldNames.join(', ')} FROM ${tableName} WHERE ${condition.toString()};`;
+
+    return this.client.query(query);
   }
 }

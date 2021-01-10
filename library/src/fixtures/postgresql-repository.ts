@@ -100,4 +100,5 @@ export const selectQueryInputFixture: insertQueryInput = [
   { toString: () => '1 AND 2' },
 ];
 
-export const selectQueryOutputFuture = 'SELECT FROM table_Name WHERE 1 AND 2;';
+export const selectQueryOutputFuture =
+  'SELECT c1, c2, c3, cxD FROM table_Name WHERE 1 AND 2;';
