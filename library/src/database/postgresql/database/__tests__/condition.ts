@@ -13,7 +13,6 @@ describe('Condition (composite design pattern)', () => {
 
   it('should implement base class for column', () => {
     const { input, output, tested } = columnFixture;
-
     expect(new (tested as any)(input).toString()).toBe(output);
   });
 
