@@ -67,8 +67,8 @@ export const conditionalOperatorsFixture: { [key: string]: Operator } = {
       [{ toString: () => 'money' }, 46, 57],
       [
         { toString: () => 'date' },
-        new Date(2013, 12, 1),
-        new Date(2013, 12, 6),
+        new Date(2013, 11, 2),
+        new Date(2013, 11, 7),
       ],
     ],
     output: [
