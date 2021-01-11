@@ -1,15 +1,12 @@
 import { Condition } from '../model/condition';
-
-// TODO:
-// implement all toString methods
-// idea is to use composite design pattern to create condition for SQL queries (query part after WHERE key word)
-// for more info check fixtures/condition.ts
+import { parseType } from '../../../utils/check';
+import { dateToISOType } from '../../../utils/date';
 
 export class Field implements Condition {
   constructor(private name: string) {}
 
   toString(): string {
-    return '';
+    return `${this.name}`;
   }
 }
 
@@ -17,7 +14,7 @@ export class Or implements Condition {
   constructor(private leftSide: Condition, private rightSide: Condition) {}
 
   toString(): string {
-    return '';
+    return `(${this.leftSide.toString()} OR ${this.rightSide.toString()})`;
   }
 }
 
@@ -25,7 +22,7 @@ export class And implements Condition {
   constructor(private leftSide: Condition, private rightSide: Condition) {}
 
   toString(): string {
-    return '';
+    return `(${this.leftSide.toString()} AND ${this.rightSide.toString()})`;
   }
 }
 
@@ -33,23 +30,38 @@ export class Not implements Condition {
   constructor(private condition: Condition) {}
 
   toString(): string {
-    return '';
+    return `(NOT ${this.condition})`;
   }
 }
 
 export class In<T extends number | string> implements Condition {
-  constructor(private set: T[]) {}
+  private set;
+  constructor(...set: T[]) {
+    this.set = set;
+  }
 
   toString(): string {
-    return '';
+    let str = `IN (`;
+    this.set.forEach((el, index, arr) => {
+      str += `${parseType(el)}${index === arr.length - 1 ? '' : ', '}`;
+    });
+    str += ')';
+    return str;
   }
 }
 
 export class Between<T extends number | Date> implements Condition {
-  constructor(private from: T, private to: T) {}
+  constructor(private type: string, private from: T, private to: T) {}
 
   toString(): string {
-    return '';
+    const dateType = this.from instanceof Date && this.to instanceof Date;
+    return `${this.type} BETWEEN ${
+      dateType
+        ? `${this.type} '${dateToISOType(this.from as Date)}'`
+        : this.from
+    } AND ${
+      dateType ? `${this.type} '${dateToISOType(this.to as Date)}'` : this.to
+    }`;
   }
 }
 
@@ -57,7 +69,7 @@ export class Equal<T extends number | string> implements Condition {
   constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return '';
+    return `${this.field} = ${parseType(this.to)}`;
   }
 }
 
@@ -65,7 +77,7 @@ export class NotEqual<T extends number | string> implements Condition {
   constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return '';
+    return `${this.field} <> ${parseType(this.to)}`;
   }
 }
 
@@ -73,7 +85,7 @@ export class Greater implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return '';
+    return `${this.field} > ${this.to}`;
   }
 }
 
@@ -81,7 +93,7 @@ export class GreaterOrEqual implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return '';
+    return `${this.field} >= ${this.to}`;
   }
 }
 
@@ -89,7 +101,7 @@ export class Less implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return '';
+    return `${this.field} < ${this.to}`;
   }
 }
 
@@ -97,7 +109,7 @@ export class LessOrEqual implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return '';
+    return `${this.field} <= ${this.to}`;
   }
 }
 
@@ -105,6 +117,6 @@ export class Like implements Condition {
   constructor(private field: Field, private pattern: string) {}
 
   toString(): string {
-    return '';
+    return `${this.field} LIKE '${this.pattern}'`;
   }
 }
