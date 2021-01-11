@@ -60,7 +60,9 @@ export class PostgresqlRepository {
       query += ' ';
     }
 
-    query += `${fieldNames.join(', ')} FROM ${tableName} WHERE ${condition.toString()};`;
+    query += `${fieldNames.join(
+      ', ',
+    )} FROM ${tableName} WHERE ${condition.toString()};`;
 
     return this.client.query(query);
   }
