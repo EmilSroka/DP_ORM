@@ -43,6 +43,7 @@ describe('PostgresqlRepository', () => {
       tableNameBasicInput,
       fieldsBasicInput,
       valuesBasicInput,
+      [],
     );
 
     expect(poolClientMock.query).toHaveBeenCalledTimes(1);
@@ -58,6 +59,7 @@ describe('PostgresqlRepository', () => {
       tableNameMultiInput,
       fieldsMultiInput,
       valuesMultiInput,
+      [],
     );
 
     expect(poolClientMock.query).toHaveBeenCalledTimes(1);
@@ -73,8 +75,33 @@ describe('PostgresqlRepository', () => {
         tableNameBasicInput,
         fieldsBasicInput,
         valuesBasicInput,
+        [],
       ),
     ).resolves.toBe(insertPromiseValue);
+  });
+
+  it("method: insert should allow to include 'RETURNING' part in query", async () => {
+    expect.assertions(2);
+
+    await repository.insert(
+      tableNameMultiInput,
+      fieldsMultiInput,
+      valuesMultiInput,
+      ['col1', 'col2'],
+    );
+
+    let argument = (poolClientMock.query as Mock).mock.calls[0][0];
+    expect(/RETURNING col1, ?col2 ?;?/.test(argument.text)).toBeTruthy();
+
+    await repository.insert(
+      tableNameMultiInput,
+      fieldsMultiInput,
+      valuesMultiInput,
+      [],
+    );
+
+    argument = (poolClientMock.query as Mock).mock.calls[1][0];
+    expect(/RETURNING col1, ?col2 ?;?/.test(argument.text)).toBeFalsy();
   });
 
   it('method: create should get query part for every column from proper CreateQueryPart taken from CreateQueryPartFactory', async () => {
@@ -109,12 +136,23 @@ describe('PostgresqlRepository', () => {
   it(`method: update should create proper "query config object" and pass it to PoolClient's query method`, async () => {
     expect.assertions(4);
     await expect(
-      repository.update(...updateQueryInputFixture),
+      repository.update(...updateQueryInputFixture, []),
     ).resolves.toBeTruthy();
     expect(poolClientMock.query).toHaveBeenCalledTimes(1);
     const output = (poolClientMock.query as Mock).mock.calls[0][0];
     expect(updateQueryOutputFuture.text.test(output.text)).toBeTruthy();
     expect(output.values).toEqual(updateQueryOutputFuture.values);
+  });
+
+  it("method: insert should allow to include 'RETURNING' part in query", async () => {
+    expect.assertions(2);
+    await repository.update(...updateQueryInputFixture, ['lox', 'col2']);
+    let output = (poolClientMock.query as Mock).mock.calls[0][0];
+    expect(/RETURNING lox, ?col2 ?;? /.test(output.text)).toBeTruthy();
+
+    await repository.update(...updateQueryInputFixture, []);
+    output = (poolClientMock.query as Mock).mock.calls[1][0];
+    expect(/RETURNING/.test(output.text)).toBeFalsy();
   });
 
   it("method: delete should create proper query string and pass it to PoolClient's query method", async () => {

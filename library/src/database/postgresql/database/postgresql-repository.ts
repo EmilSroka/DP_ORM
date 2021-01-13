@@ -9,7 +9,16 @@ export class PostgresqlRepository {
     private partsFactory: CreateQueryPartFactory,
   ) {}
 
-  insert(tableName: string, fields: string[], values: any[][]): Promise<any> {
+  insert(
+    tableName: string,
+    fields: string[],
+    values: any[][],
+    returning: string[] = [],
+  ): Promise<any> {
+    // TODO
+    // add to end of the query text ' RETURNING <returning>, <returning>, <returning>;' ~ depends of returning size
+    // but only, when returning is not empty
+
     let queryText = `INSERT INTO ${tableName} (${fields.join(', ')})`;
 
     const flattenedValues: string[] = values.flat();
@@ -72,10 +81,12 @@ export class PostgresqlRepository {
     fieldNames: string[],
     values: any[],
     condition: Condition,
+    returning: string[] = [],
   ): Promise<any> {
     // TODO:
     // 1. create "query config object" for update query. eg:
-    //    text: UPDATE <tableName> SET <fieldName1> = $1, <fieldName2> = $2 WHERE <condition.toString()>;
+    //    text: UPDATE <tableName> SET <fieldName1> = $1, <fieldName2> = $2 WHERE <condition.toString()> RETURNING <>;
+    //          - RETURNING only when returning parameter is not empty
     //    values: values parameter
     // 2. call query with "query config object" as argument, and return it's result
     // additional link, might be helpful:
