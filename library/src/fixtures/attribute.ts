@@ -27,25 +27,33 @@ export const attributeConfigurationFixtures: {
   oneToManyFixture: {
     type: {
       type: RelationshipType.oneToMany,
-      with: 'xyz',
+      with: {
+        _orm_get_name: 'xyz',
+      } as any,
     },
   },
   manyToManyFailFixture: {
     type: {
       type: RelationshipType.manyToMany,
-      with: 'ppp',
+      with: {
+        _orm_get_name: 'ppp',
+      } as any,
     },
   },
   manyToManyFixture: {
     type: {
       type: RelationshipType.manyToMany,
-      with: 'xyz',
+      with: {
+        _orm_get_name: 'xyz',
+      } as any,
     },
   },
   oneToOneFixture: {
     type: {
       type: RelationshipType.oneToOne,
-      with: 'xyz',
+      with: {
+        _orm_get_name: 'xyz',
+      } as any,
     },
   },
 };

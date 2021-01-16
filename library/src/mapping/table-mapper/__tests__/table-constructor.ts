@@ -57,7 +57,7 @@ describe('TableConstructor', () => {
     expect(order.length).toBe(tables.getNames().length);
   });
 
-  it('method: insertLinkTables should create association (link) table', () => {
+  it.skip('method: insertLinkTables should create association (link) table', () => {
     const input = Object.values(tableSchemaFixtures);
     const result = tableConstructor.insertLinkTables(input);
 
@@ -79,7 +79,7 @@ describe('TableConstructor', () => {
     schemaAssertion(result, differentNameForeignKeyColumns, schemaCopy);
   });
 
-  it('method: insertLinkTables should change columns names, only when both primary keys have the same name', () => {
+  it.skip('method: insertLinkTables should change columns names, only when both primary keys have the same name', () => {
     const sameNameInput = Object.values(tableSchemaFixtures);
     const differentNameInput = Object.values(difLinkTablesSchemaFixtures);
     const sameNameResult = tableConstructor.insertLinkTables(sameNameInput);

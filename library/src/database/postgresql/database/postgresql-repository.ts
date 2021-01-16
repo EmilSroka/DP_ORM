@@ -49,6 +49,18 @@ export class PostgresqlRepository {
     return this.client.query(query);
   }
 
+  async tableExist(tableName: string, schemaName?: string): Promise<boolean> {
+    const query = `SELECT EXISTS (
+    SELECT FROM information_schema.tables 
+    WHERE table_name = '${tableName.toLowerCase()}'
+    ${schemaName ? `AND table_schema = '${schemaName.toLowerCase()}'` : ''}
+    );`;
+    const {
+      rows: [{ exists: result }],
+    } = await this.client.query(query);
+    return result;
+  }
+
   select(
     tableName: string,
     fieldNames: string[],
