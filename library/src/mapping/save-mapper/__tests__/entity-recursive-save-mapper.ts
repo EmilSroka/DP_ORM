@@ -56,11 +56,13 @@ describe('Entity recursive save mapper', () => {
   it('method: saveRecursively should call proper strategy for every relation', async () => {
     expect.assertions(10);
 
-    const { entity, keys, relationships } = recursiveStrategyFixture;
+    const { entity, keys, relationships, map } = recursiveStrategyFixture;
+    mockProps.tableMap = map;
     const repositoryMock = {} as Repository;
     await mapper.saveRecursively(entity, keys, repositoryMock);
 
     expect(getStrategyMock).toHaveBeenCalledTimes(relationships.length);
+
     expect(strategyMock.toAction).toHaveBeenCalledTimes(relationships.length);
     expect(actionMock).toHaveBeenCalledTimes(relationships.length);
     expect(actionMock).toHaveBeenCalledWith(repositoryMock);

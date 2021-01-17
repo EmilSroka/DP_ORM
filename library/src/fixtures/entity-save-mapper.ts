@@ -493,4 +493,5 @@ export const recursiveStrategyFixture = {
     [RelationshipType.oneToMany, entityWithRelationsFixture.otherObjects],
     [RelationshipType.manyToMany, entityWithRelationsFixture.otherObjectsMany],
   ],
+  map: entityWithRelationsMapFixture,
 };

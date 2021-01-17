@@ -7,6 +7,11 @@ import { DBAction } from '../../common/models/db-action';
 import { Repository } from '../../common/models/repository';
 import { SaveMapperFactory } from './save-mapper-factory';
 import { EntitySaveMapper } from './entity-save-mapper';
+import {
+  isRelationshipField,
+  RelationshipFieldType,
+} from '../../common/models/field-types';
+import { ColumnMap } from '../../common/models/column-map';
 
 export class EntityRecursiveSaveMapper
   extends EntitySaveMapper
@@ -34,13 +39,16 @@ export class EntityRecursiveSaveMapper
   }
 
   toExtraFields(entity: Entity, keys: { [key: string]: any }): ExtraField[] {
-    // TODO:
-    // iterate over keys
-    // for every create ExtraField -> (key, value) pair:
-    // - tableName: entity._orm_table_name;
-    // - columnName: keys.key;
-    // - value: keys.value;
-    return [];
+    const result: ExtraField[] = [];
+
+    for (const key in keys) {
+      result.push({
+        tableName: entity._orm_table_name,
+        columnName: key,
+        value: keys[key],
+      });
+    }
+    return result;
   }
 
   async saveRecursively(
@@ -48,11 +56,22 @@ export class EntityRecursiveSaveMapper
     keys: ExtraField[],
     repository: Repository,
   ): Promise<any> {
-    // TODO:
-    // iterate over TableMap -> this.getTableMap(entity._orm_table_name);
-    // if field is relationship -> isRelationshipField( ColumnMap.type )
-    // get proper strategy passing relationship type to factory, get action and await for result, something like this:
-    // await this.getStrategy(<pass type here>).toAction(<pass object here>, keys)(repository);
-    return true;
+    const columnMaps: ColumnMap[] = this.getTableMap(entity._orm_table_name)
+      .columns;
+
+    const promises = [];
+
+    for (let i = 0; i < columnMaps.length; i++) {
+      if (isRelationshipField(columnMaps[i].type)) {
+        const columnMapType = (columnMaps[i].type as RelationshipFieldType)
+          .type;
+        const promise = this.getStrategy(columnMapType).toAction(
+          entity,
+          keys,
+        )(repository);
+        promises.push(promise);
+      }
+    }
+    return Promise.all(promises);
   }
 }
