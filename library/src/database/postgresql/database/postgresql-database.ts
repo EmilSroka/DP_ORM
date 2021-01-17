@@ -22,10 +22,11 @@ export class PostgresqlDatabase implements Database {
     await this.pool.end();
   }
 
-  async transaction(
-    actions: Array<(repository: PostgresqlRepository) => Promise<boolean>>,
-  ): Promise<any> {
+  async transaction<T>(
+    actions: Array<(repository: PostgresqlRepository) => Promise<T>>,
+  ): Promise<T[]> {
     if (this.pool == undefined) return Promise.reject(false);
+    const results: T[] = [];
 
     const client = await this.pool.connect();
     try {
@@ -37,7 +38,7 @@ export class PostgresqlDatabase implements Database {
       await client.query('BEGIN');
       for (const action of actions) {
         const result = await action(repository);
-        if (result === false) throw 'action failed';
+        results.push(result);
       }
       await client.query('COMMIT');
     } catch {
@@ -46,6 +47,6 @@ export class PostgresqlDatabase implements Database {
     }
 
     client.release();
-    return true;
+    return results;
   }
 }

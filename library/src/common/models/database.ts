@@ -3,7 +3,7 @@ import { PostgresqlRepository } from '../../database/postgresql/database/postgre
 export interface Database {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<boolean>;
-  transaction: (
-    actions: Array<(repo: PostgresqlRepository) => Promise<boolean>>,
-  ) => Promise<boolean>;
+  transaction: <T>(
+    actions: Array<(repo: PostgresqlRepository) => Promise<T>>,
+  ) => Promise<T[]>;
 }

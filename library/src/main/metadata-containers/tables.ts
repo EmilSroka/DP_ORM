@@ -1,15 +1,15 @@
 import { TableMap } from '../../common/models/table-map';
 
 export class Tables {
-  private tableMaps: TableMap[] = [];
-  private nameToTableMap: Map<string, TableMap> = new Map();
+  private tableMaps: TableMap<any>[] = [];
+  private nameToTableMap: Map<string, TableMap<any>> = new Map();
 
-  add(element: TableMap): void {
+  add(element: TableMap<any>): void {
     this.tableMaps.push(element);
     this.nameToTableMap.set(element.tableName, element);
   }
 
-  get(name: string): TableMap {
+  get(name: string): TableMap<any> {
     if (!this.nameToTableMap.has(name))
       throw new Error('There is no TableMap with that name');
 

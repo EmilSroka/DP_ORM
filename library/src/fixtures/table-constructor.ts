@@ -3,7 +3,7 @@ import { TableMap } from '../common/models/table-map';
 import { TableSchema } from '../common/models/database-schema';
 
 export const tablesFixtures: {
-  [key: string]: TableMap;
+  [key: string]: TableMap<any>;
 } = {
   clients: {
     tableName: 'clients',
