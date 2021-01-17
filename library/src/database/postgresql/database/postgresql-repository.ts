@@ -52,8 +52,8 @@ export class PostgresqlRepository {
   async tableExist(tableName: string, schemaName?: string): Promise<boolean> {
     const query = `SELECT EXISTS (
     SELECT FROM information_schema.tables 
-    WHERE table_name = '${tableName.toLowerCase()}'
-    ${schemaName ? `AND table_schema = '${schemaName.toLowerCase()}'` : ''}
+    WHERE table_name = '${tableName}'
+    ${schemaName ? `AND table_schema = '${schemaName}'` : ''}
     );`;
     const {
       rows: [{ exists: result }],

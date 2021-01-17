@@ -1,7 +1,7 @@
 import { ColumnMap } from './column-map';
 
-export interface TableMap {
+export interface TableMap<T> {
   tableName: string;
-  constructor: { name: string; new (...args: any[]): any };
+  constructor: { new (...args: any[]): T };
   columns: ColumnMap[];
 }

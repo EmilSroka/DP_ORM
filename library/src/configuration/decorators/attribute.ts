@@ -16,6 +16,10 @@ export function Attribute(
   return function (target: any, key: string | symbol) {
     const cb = (tableName: string) => {
       const tableMap = tables.get(tableName);
+      if (settings.columnName)
+        settings.columnName = settings.columnName.toLowerCase();
+      if (isRelationshipField(settings.type))
+        settings.type.with = settings.type.with.toLowerCase();
 
       const columnMap: ColumnMap = {
         ...getDefaultSettings(key.toString()),
@@ -42,7 +46,7 @@ export function Attribute(
   function getDefaultSettings(fieldName: string) {
     return {
       fieldName: fieldName,
-      columnName: fieldName,
+      columnName: fieldName.toLowerCase(),
       isPrimaryKey: false,
       isNullable: true,
       isUnique: false,
