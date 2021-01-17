@@ -15,7 +15,7 @@ export class TableConstructor {
 
   getDatabaseScheme(): TableSchema[] {
     const tablesNames = this.getTableMapsNamesInCreationOrder();
-    const tableSchemas = tablesNames.map(this.toTableSchema);
+    const tableSchemas = tablesNames.map((name) => this.toTableSchema(name));
     this.insertLinkTables(tableSchemas);
     return tableSchemas;
   }
@@ -198,6 +198,7 @@ export class TableConstructor {
           columnName: key.name,
           tableName: fromTableName,
         };
+        key.isPrimaryKey = false;
       }
 
       for (const key of keysToTable) {
@@ -205,6 +206,7 @@ export class TableConstructor {
           columnName: key.name,
           tableName: toTableName,
         };
+        key.isPrimaryKey = false;
       }
 
       for (const keyFromTable of keysFromTable) {
@@ -218,7 +220,17 @@ export class TableConstructor {
 
       const linkTable = {
         name: `${fromTableName}_${toTableName}`,
-        columns: [...keysFromTable, ...keysToTable],
+        columns: [
+          {
+            name: '_dp_orm_primary_key',
+            type: DbType.autoincrement,
+            isNullable: false,
+            isUnique: true,
+            isPrimaryKey: true,
+          },
+          ...keysFromTable,
+          ...keysToTable,
+        ],
       };
 
       schema.push(linkTable);

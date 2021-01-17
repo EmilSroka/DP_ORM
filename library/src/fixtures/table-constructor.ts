@@ -7,7 +7,7 @@ export const tablesFixtures: {
 } = {
   clients: {
     tableName: 'clients',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'id',
@@ -40,7 +40,7 @@ export const tablesFixtures: {
   },
   orders: {
     tableName: 'orders',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'price',
@@ -54,7 +54,7 @@ export const tablesFixtures: {
   },
   receivers: {
     tableName: 'receivers',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'id',
@@ -87,7 +87,7 @@ export const tablesFixtures: {
   },
   compositions: {
     tableName: 'compositions',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'id',
@@ -134,7 +134,7 @@ export const tablesFixtures: {
   },
   compositionDetails: {
     tableName: 'compositionDetails',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'description',
@@ -159,7 +159,7 @@ export const tablesFixtures: {
   },
   extraDetails: {
     tableName: 'extraDetails',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'date',
@@ -173,7 +173,7 @@ export const tablesFixtures: {
   },
   compositionCreators: {
     tableName: 'compositionCreators',
-    constructor: () => null,
+    constructor: class {},
     columns: [
       {
         fieldName: 'id',

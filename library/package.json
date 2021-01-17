@@ -1,12 +1,15 @@
 {
-  "name": "orm",
-  "version": "0.0.0",
+  "name": "dp-orm",
+  "version": "0.0.99998",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest --passWithNoTests",
     "lint": "eslint --ext .ts src"
+  },
+  "dependencies": {
+  "pg": "^8.5.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.18",
@@ -19,7 +22,6 @@
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.2.0",
     "jest": "^26.6.3",
-    "pg": "^8.5.1",
     "prettier": "^2.2.1",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.2"

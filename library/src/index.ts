@@ -1,3 +1,3 @@
-const helloWorld = () => console.log('Hello world!');
+import { ORM } from './main/orm';
 
-export default helloWorld;
+export default ORM;

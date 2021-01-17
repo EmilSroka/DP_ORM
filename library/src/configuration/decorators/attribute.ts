@@ -14,30 +14,38 @@ export function Attribute(
   settings: AttributeConfiguration,
 ) {
   return function (target: any, key: string | symbol) {
-    const tableMap = tables.get(target._orm_table_name);
-    const columnMap: ColumnMap = {
-      ...getDefaultSettings(key.toString()),
-      ...settings,
-    };
-    tableMap.columns.push(columnMap);
+    const cb = (tableName: string) => {
+      const tableMap = tables.get(tableName);
 
-    if (!isRelationshipField(columnMap.type)) return;
-    const relation = {
-      type: columnMap.type.type,
-      toTableName: columnMap.type.with,
-      fromTableName: tableMap.tableName,
+      const columnMap: ColumnMap = {
+        ...getDefaultSettings(key.toString()),
+        ...settings,
+      };
+      tableMap.columns.push(columnMap);
+
+      if (!isRelationshipField(columnMap.type)) return;
+      const relation = {
+        type: columnMap.type.type,
+        toTableName: columnMap.type.with,
+        fromTableName: tableMap.tableName,
+      };
+      if (isExisting(relation)) return;
+      relationships.add(relation);
     };
-    if (isExisting(relation)) return;
-    relationships.add(relation);
+
+    if (!target._orm_attributes) {
+      target._orm_attributes = [];
+    }
+    target._orm_attributes.push(cb);
   };
 
   function getDefaultSettings(fieldName: string) {
     return {
       fieldName: fieldName,
       columnName: fieldName,
-      isPrimaryKey: true,
-      isNullable: false,
-      isUnique: true,
+      isPrimaryKey: false,
+      isNullable: true,
+      isUnique: false,
     };
   }
 
@@ -52,3 +60,7 @@ export function Attribute(
     );
   }
 }
+
+export type AttributeDecorator = (
+  settings: AttributeConfiguration,
+) => (target: any, key: string | symbol) => undefined;
