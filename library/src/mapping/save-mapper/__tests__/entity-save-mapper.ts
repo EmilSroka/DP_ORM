@@ -57,7 +57,6 @@ describe('Entity save mapper', () => {
         inDB: false,
         getStrategy: jest.fn(),
       };
-
       expect(mapper.getPrimaryKeyColumnNames(entity)).toEqual(
         expect.arrayContaining(output),
       );
@@ -99,10 +98,8 @@ describe('Entity save mapper', () => {
       expect(insertMethod).toHaveBeenCalledTimes(1);
       const input = insertMethod.mock.calls[0];
       const [tableName, columns, data] = output;
-
       expect(input[0]).toBe(tableName);
       expect(input[1]).toEqual(expect.arrayContaining(columns));
-
       for (let i = 0; i < columns.length; i++) {
         const name = columns[i];
         const index = input[1].indexOf(name);
@@ -146,7 +143,6 @@ describe('Entity save mapper', () => {
       expect(updateMethod).toHaveBeenCalledTimes(1);
       const input = updateMethod.mock.calls[0];
       const [tableName, columns, data] = output;
-
       expect(input[0]).toBe(tableName);
       expect(input[1]).toEqual(expect.arrayContaining(columns));
 
@@ -171,9 +167,7 @@ describe('Entity save mapper', () => {
         inDB: true,
         getStrategy: jest.fn(),
       };
-
       mapper.handleMissingFields(entity, keys);
-
       expect(entity).toEqual(output);
     },
   );

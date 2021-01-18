@@ -6,6 +6,12 @@ import { ExtraField } from './models/extra-fields';
 import { DBAction } from '../../common/models/db-action';
 import { Repository } from '../../common/models/repository';
 import { SaveMapperFactory } from './save-mapper-factory';
+import {
+  Field,
+  RelationshipFieldType,
+  RelationshipType,
+} from '../../common/models/field-types';
+import { Relationship } from '../../main/models/relationships';
 
 export class EntitySaveMapper extends AbstractSaveMapper implements SaveMapper {
   constructor(
@@ -29,10 +35,11 @@ export class EntitySaveMapper extends AbstractSaveMapper implements SaveMapper {
   }
 
   getPrimaryKeyColumnNames(entity: Entity): string[] {
-    // TODO:
-    // 1. const tableMap = this.getTableMap(entity._orm_table_name);
-    // 2. iterate over columns and return names of all primary key fields
-    return [];
+    const tableSchema = this.getTableSchema(entity._orm_table_name);
+    const primaryKeyNames = tableSchema.columns
+      .filter((column) => column.isPrimaryKey)
+      .map((column) => column.name);
+    return primaryKeyNames;
   }
 
   saveEntity(
@@ -41,31 +48,73 @@ export class EntitySaveMapper extends AbstractSaveMapper implements SaveMapper {
     repository: Repository,
     pkColumns: string[],
   ): Promise<any> {
-    // TODO:
-    // 0. prepare data for later
-    // const tableScheme = this.getTableSchema(entity._orm_table_name);
-    // const tableMap = this.getTableMap(entity._orm_table_name);
-    // 1. check if entity is loaded form database: -> this.existsInDB()
-    //    true:
-    //      2. prepare for update query (pkColumns as 4. argument)
-    //      3. call update on repository
-    //    false
-    //      2. prepare for insert query
-    //      3. call insert on repository
-    // 2. return result of update/insert method (repository)
-    //  notes:
-    //    * on this stage ignore all fields of type relationship
-    //    * include foreignKeys into query: check if props from ExtraField match this from tableScheme.Column
-    return;
+    const tableSchema = this.getTableSchema(entity._orm_table_name);
+    const tableMap = this.getTableMap(entity._orm_table_name);
+    const exist = this.existsInDB(entity);
+    const columns = tableMap.columns
+      .map((column) => {
+        const type = (column.type as Field) as RelationshipFieldType;
+        if (type.type as RelationshipType) {
+          return null;
+        } else {
+          return column.columnName;
+        }
+      })
+      .filter((column) => column !== null);
+    const data = tableMap.columns
+      .map((column) => {
+        const exist = columns.some((col) => {
+          return col === column.columnName;
+        });
+        if (exist) {
+          return entity[column.fieldName];
+        } else {
+          return null;
+        }
+      })
+      .filter((column) => column !== null);
+    if (foreignKeys) {
+      const keys = [];
+      foreignKeys.forEach((k) => {
+        tableSchema.columns.forEach((col) => {
+          if (col.foreignKey) {
+            if (col.foreignKey.columnName === k.columnName) {
+              keys.push({ colName: col.name, value: k.value });
+            }
+          } else return;
+        });
+      });
+      keys.forEach((k) => {
+        if (k) {
+          columns.push(k.colName);
+          data.push(k.value);
+        }
+      });
+    }
+    const pmExists = tableMap.columns.find((col) => col.isPrimaryKey);
+    if (!pmExists) {
+      const primaryKeyCol = tableSchema.columns.find((col) => col.isPrimaryKey);
+      columns.unshift(primaryKeyCol.name);
+      data.unshift(2);
+    }
+    if (exist) {
+      return repository.update(
+        tableMap.tableName,
+        columns,
+        data,
+        `${pkColumns} = ${data[0]}`,
+      );
+    } else {
+      return repository.insert(tableMap.tableName, columns, [data]);
+    }
   }
 
   handleMissingFields(entity: Entity, keys: { [key: string]: any }): void {
-    // TODO:
-    // 1. this.getTableSchema(entity._orm_table_name);
-    // 2. for every part {key, value} from keys:
-    //    - if table schema containing proper mapping (column name === key)
-    //      -> update entity: fieldName = value
-    //    - else
-    //      -> insert new property: key = value
+    const schema = this.getTableMap(entity._orm_table_name);
+    for (const [key, value] of Object.entries(keys)) {
+      schema.columns.forEach(() => {
+        entity[key] = value;
+      });
+    }
   }
 }
