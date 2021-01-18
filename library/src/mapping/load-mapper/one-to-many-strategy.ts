@@ -24,11 +24,9 @@ export class OneToManyStrategy implements LoadStrategy {
       dbSchema.find(({ name }) => name === withColumn),
     );
 
-    return (
-      await loader.toAction(
-        field.type.with,
-        new Equal(new Field(column), keyValue),
-      )(repository)
-    )[0];
+    return await loader.toAction(
+      field.type.with,
+      new Equal(new Field(column), keyValue),
+    )(repository);
   }
 }

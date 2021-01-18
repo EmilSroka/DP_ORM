@@ -30,9 +30,9 @@ export const simpleEntityFixture = {
   _orm_table_name: 'simpleEntity',
 };
 
-export const simpleEntityMapFixture: TableMap = {
+export const simpleEntityMapFixture: TableMap<any> = {
   tableName: 'simpleEntity',
-  constructor: () => null,
+  constructor: class {},
   columns: [
     {
       fieldName: 'id',
@@ -128,9 +128,9 @@ export const entityWithRelationsFixture = {
   _orm_table_name: 'entityWithRelations',
 };
 
-export const entityWithRelationsMapFixture: TableMap = {
+export const entityWithRelationsMapFixture: TableMap<any> = {
   tableName: 'entityWithRelations',
-  constructor: () => null,
+  constructor: class {},
   columns: [
     {
       fieldName: 'id',
@@ -236,9 +236,9 @@ export const entityWithoutKeyFilledFixture = {
   _orm_table_name: 'entityWithoutKey',
 };
 
-export const entityWithoutKeyMapFixture: TableMap = {
+export const entityWithoutKeyMapFixture: TableMap<any> = {
   tableName: 'entityWithoutKey',
-  constructor: () => null,
+  constructor: class {},
   columns: [
     {
       fieldName: 'simpleField',
@@ -297,9 +297,9 @@ export const entityForeignKeyFixture = {
   _orm_table_name: 'entityForeignKey',
 };
 
-export const entityForeignKeyMapFixture: TableMap = {
+export const entityForeignKeyMapFixture: TableMap<any> = {
   tableName: 'entityForeignKey',
-  constructor: () => null,
+  constructor: class {},
   columns: [
     {
       fieldName: 'id',
@@ -374,7 +374,7 @@ export const entitySaveInsertCases: {
   [key: string]: [
     any,
     InsertInput,
-    TableMap,
+    TableMap<any>,
     TableSchema,
     ExtraField[],
     string[],
@@ -418,7 +418,7 @@ export const entitySaveUpdateCases: {
   [key: string]: [
     any,
     UpdateInput,
-    TableMap,
+    TableMap<any>,
     TableSchema,
     ExtraField[],
     string[],
@@ -463,7 +463,7 @@ export const missingFieldsCases = [
   'insert non-existing values',
 ];
 export const missingFieldsFixture: {
-  [key: string]: [any, TableMap, { [key: string]: any }, any];
+  [key: string]: [any, TableMap<any>, { [key: string]: any }, any];
 } = {
   'update existing values': [
     simpleEntityFixture,
