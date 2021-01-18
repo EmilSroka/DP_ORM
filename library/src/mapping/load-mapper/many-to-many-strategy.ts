@@ -32,15 +32,20 @@ export class ManyToManyStrategy implements LoadStrategy {
       ['*'],
       new Equal(new Field(foreign), keyValue),
     );
-    const name = linkTable.columns.filter(
+
+    const tmp = linkTable.columns.filter(
       ({ name }) => name != '_dp_orm_primary_key' && name != foreign,
-    )[0].foreignKey.columnName;
+    )[0];
+
+    const inTable = tmp.foreignKey.columnName;
+    const thisTable = tmp.name;
+
     const promises = [];
     for (const result of results) {
       promises.push(
         loader.toAction(
           field.type.with,
-          new Equal(new Field(name), result[name]),
+          new Equal(new Field(inTable), result[thisTable]),
         )(repository),
       );
     }

@@ -7,6 +7,7 @@ export class IdentityMap {
     if (this.map.get(tableName).has(key)) return;
 
     this.map.get(tableName).set(key, entity);
+    this.set.add(entity);
   }
 
   has(key: any, tableName: string): boolean {

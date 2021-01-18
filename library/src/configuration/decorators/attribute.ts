@@ -1,40 +1,29 @@
 import { AttributeConfiguration } from '../models/attribute-configuration';
 import { Tables } from '../../main/metadata-containers/tables';
-import { Relationships } from '../../main/metadata-containers/relationships';
 import { ColumnMap } from '../../common/models/column-map';
-import {
-  isRelationshipField,
-  RelationshipType,
-} from '../../common/models/field-types';
-import { Relationship } from '../../main/models/relationships';
 
-export function Attribute(
-  tables: Tables,
-  relationships: Relationships,
-  settings: AttributeConfiguration,
-) {
+export function Attribute(tables: Tables, settings: AttributeConfiguration) {
   return function (target: any, key: string | symbol) {
-    const cb = (tableName: string) => {
+    const cb = (
+      tableName: string,
+      validation: { havePK: boolean; columnNames: string[] },
+    ) => {
       const tableMap = tables.get(tableName);
       if (settings.columnName)
         settings.columnName = settings.columnName.toLowerCase();
-      if (isRelationshipField(settings.type))
-        settings.type.with = settings.type.with.toLowerCase();
 
       const columnMap: ColumnMap = {
         ...getDefaultSettings(key.toString()),
         ...settings,
       };
-      tableMap.columns.push(columnMap);
 
-      if (!isRelationshipField(columnMap.type)) return;
-      const relation = {
-        type: columnMap.type.type,
-        toTableName: columnMap.type.with,
-        fromTableName: tableMap.tableName,
-      };
-      if (isExisting(relation)) return;
-      relationships.add(relation);
+      if (validation.columnNames.includes(columnMap.columnName))
+        throw new Error(
+          'ORM: Column of given name already exists (names ar case insensitive)',
+        );
+
+      tableMap.columns.push(columnMap);
+      validation.columnNames.push(columnMap.columnName);
     };
 
     if (!target._orm_attributes) {
@@ -51,17 +40,6 @@ export function Attribute(
       isNullable: true,
       isUnique: false,
     };
-  }
-
-  function isExisting(relation: Relationship): boolean {
-    if (relation.type !== RelationshipType.manyToMany) return false;
-
-    const manyToManyRelations = relationships.getByType(relation.type);
-    return manyToManyRelations.some(
-      (rel) =>
-        rel.fromTableName === relation.toTableName &&
-        rel.toTableName === relation.fromTableName,
-    );
   }
 }
 

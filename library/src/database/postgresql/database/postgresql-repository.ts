@@ -2,14 +2,28 @@ import { PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { TableSchema } from '../../../common/models/database-schema';
 import { CreateQueryPartFactory } from './create-query-part';
 import { Condition } from '../model/condition';
+import { Repository } from '../../../common/models/repository';
 
-export class PostgresqlRepository {
+export class PostgresqlRepository implements Repository {
   constructor(
     private client: PoolClient,
     private partsFactory: CreateQueryPartFactory,
   ) {}
 
-  insert(tableName: string, fields: string[], values: any[][]): Promise<any> {
+  insert(
+    tableName: string,
+    fields: string[],
+    values: any[][],
+    returning: string[],
+  ): Promise<any> {
+    const toReturn =
+      returning.length > 0 ? ` RETURNING ${returning.join(', ')}` : '';
+
+    if (fields.length === 0)
+      return this.client.query(
+        `INSERT INTO ${tableName} DEFAULT VALUES${toReturn}`,
+      );
+
     let queryText = `INSERT INTO ${tableName} (${fields.join(', ')})`;
 
     const flattenedValues: string[] = values.flat();
@@ -33,7 +47,7 @@ export class PostgresqlRepository {
     }
 
     const queryObj = {
-      text: queryText,
+      text: `${queryText}${toReturn};`,
       values: flattenedValues,
     };
 
@@ -77,5 +91,31 @@ export class PostgresqlRepository {
     )} FROM ${tableName} WHERE ${condition.toString()};`;
 
     return this.client.query(query);
+  }
+
+  delete(tableName: string, condition: Condition): Promise<any> {
+    return this.client.query(
+      `DELETE FROM ${tableName} WHERE ${condition.toString()};`,
+    );
+  }
+
+  update(
+    tableName: string,
+    columnNames: string[],
+    data: any[],
+    condition: Condition,
+    returning: string[],
+  ): Promise<any> {
+    const fields = columnNames
+      .map((name, index) => `${name} = \$${index + 1}`)
+      .join(', ');
+    const toReturn =
+      returning.length > 0 ? ` RETURNING ${returning.join(', ')}` : '';
+    const text = `UPDATE ${tableName} SET ${fields} WHERE ${condition.toString()}${toReturn};`;
+
+    return this.client.query({
+      text,
+      values: data,
+    });
   }
 }
