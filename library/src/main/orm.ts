@@ -8,16 +8,22 @@ import {
   AttributeDecorator,
 } from '../configuration/decorators/attribute';
 import { Entity, EntityDecorator } from '../configuration/decorators/entity';
+import { PersistenceManager } from './persistence-manager';
+import { IdentityMap } from './metadata-containers/identity-map';
+import { EntityLoader } from '../mapping/load-mapper/entity-loader';
 
 export class ORM {
   private readonly tables: Tables;
   private readonly relationships: Relationships;
+  private readonly identityMap: IdentityMap;
   public Attribute: AttributeDecorator;
   public Entity: EntityDecorator;
+  public persistenceManager: PersistenceManager;
 
   constructor(private db: Database) {
     this.tables = new Tables();
     this.relationships = new Relationships();
+    this.identityMap = new IdentityMap();
     this.Attribute = Attribute.bind(this, this.tables, this.relationships);
     this.Entity = Entity.bind(this, this.tables);
   }
@@ -34,6 +40,18 @@ export class ORM {
         return true;
       },
     );
-    return this.db.transaction(actions);
+    await this.db.transaction(actions);
+    const entityLoader = new EntityLoader(
+      this.tables,
+      dbScheme,
+      this.identityMap,
+    );
+
+    this.persistenceManager = new PersistenceManager(
+      this.identityMap,
+      dbScheme,
+      this.db,
+      entityLoader,
+    );
   }
 }

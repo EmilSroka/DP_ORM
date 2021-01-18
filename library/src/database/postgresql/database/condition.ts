@@ -6,7 +6,7 @@ export class Field implements Condition {
   constructor(private name: string) {}
 
   toString(): string {
-    return `${this.name}`;
+    return this.name.toLowerCase();
   }
 }
 

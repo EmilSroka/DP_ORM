@@ -7,8 +7,10 @@ export function Entity(tables: Tables, settings?: EntityConfiguration) {
   return function <T extends { name: string; new (...args: any[]): any }>(
     constructor: T,
   ): void {
-    const dataMap: TableMap = {
-      tableName: settings ? settings.tableName : constructor.name,
+    const dataMap: TableMap<T> = {
+      tableName: settings
+        ? settings.tableName.toLowerCase()
+        : constructor.name.toLowerCase(),
       columns: [],
       constructor: constructor as any,
     };
