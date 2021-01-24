@@ -1,4 +1,5 @@
 import { TableSchema } from '../common/models/database-schema';
+import { TableMap } from '../common/models/table-map';
 
 export class TableSchemaHelpers {
   static getCorrespondedName(
@@ -28,5 +29,20 @@ export class TableSchemaHelpers {
         name === `${tableName}_${otherTableName}` ||
         name === `${otherTableName}_${tableName}`,
     );
+  }
+
+  static getNameInObject(columnName: string, map: TableMap<any>): string {
+    const column = map.columns.find(({ columnName: cn }) => cn === columnName);
+    if (column == null) return columnName;
+
+    return column.fieldName;
+  }
+
+  static getKeyNames(
+    map: TableMap<any>,
+    schema: TableSchema,
+  ): [string, string] {
+    const inDb = schema.columns.find(({ isPrimaryKey }) => isPrimaryKey).name;
+    return [inDb, TableSchemaHelpers.getNameInObject(inDb, map)];
   }
 }

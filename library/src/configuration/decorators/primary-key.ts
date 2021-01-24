@@ -1,25 +1,28 @@
-import { AttributeConfiguration } from '../models/attribute-configuration';
 import { Tables } from '../../main/metadata-containers/tables';
 import { ColumnMap } from '../../common/models/column-map';
+import { PrimaryKeyConfiguration } from '../models/primary-key-configuration';
 
-export function Attribute(tables: Tables, settings: AttributeConfiguration) {
+export function PrimaryKey(tables: Tables, settings: PrimaryKeyConfiguration) {
   return function (target: any, key: string | symbol) {
     const cb = (
       tableName: string,
       validation: { havePK: boolean; columnNames: string[] },
     ) => {
       const tableMap = tables.get(tableName);
-      if (settings.columnName)
-        settings.columnName = settings.columnName.toLowerCase();
 
-      const columnMap: ColumnMap = {
-        ...getDefaultSettings(key.toString()),
-        ...settings,
-      };
+      const columnMap: ColumnMap = getDefaultSettings(key.toString());
+      columnMap.type = settings.type;
+      if (settings.columnName)
+        columnMap.columnName = settings.columnName.toLowerCase();
 
       if (validation.columnNames.includes(columnMap.columnName))
         throw new Error(
           'ORM: Column of given name already exists (names ar case insensitive)',
+        );
+
+      if (columnMap.isPrimaryKey && validation.havePK)
+        throw new Error(
+          'ORM: Column with key already exists (entity can have only one primary key)',
         );
 
       tableMap.columns.push(columnMap);
@@ -32,17 +35,18 @@ export function Attribute(tables: Tables, settings: AttributeConfiguration) {
     target._orm_attributes.push(cb);
   };
 
-  function getDefaultSettings(fieldName: string) {
+  function getDefaultSettings(fieldName: string): ColumnMap {
     return {
+      type: undefined,
       fieldName: fieldName,
       columnName: fieldName.toLowerCase(),
-      isPrimaryKey: false,
-      isNullable: true,
-      isUnique: false,
+      isPrimaryKey: true,
+      isNullable: false,
+      isUnique: true,
     };
   }
 }
 
-export type AttributeDecorator = (
-  settings: AttributeConfiguration,
+export type PrimaryKeyDecorator = (
+  settings: PrimaryKeyConfiguration,
 ) => (target: any, key: string | symbol) => undefined;

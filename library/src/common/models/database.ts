@@ -1,9 +1,7 @@
-import { PostgresqlRepository } from '../../database/postgresql/database/postgresql-repository';
+import { DBAction } from './db-action';
 
 export interface Database {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<boolean>;
-  transaction: <T>(
-    actions: Array<(repo: PostgresqlRepository) => Promise<T>>,
-  ) => Promise<T[]>;
+  transaction: <T>(actions: DBAction[]) => Promise<T[]>;
 }

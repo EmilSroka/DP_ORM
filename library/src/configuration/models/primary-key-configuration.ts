@@ -1,8 +1,6 @@
 import { DbFieldTypes, JsFieldTypes } from '../../common/models/field-types';
 
-export interface AttributeConfiguration {
+export type PrimaryKeyConfiguration = {
   type: JsFieldTypes | DbFieldTypes;
   columnName?: string;
-  isNullable?: boolean;
-  isUnique?: boolean;
-}
+};

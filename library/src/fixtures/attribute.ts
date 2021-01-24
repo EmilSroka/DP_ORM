@@ -20,42 +20,41 @@ export const attributeConfigurationFixtures: {
   allSettingsFixture: {
     type: JsType.string,
     columnName: 'pyrpyrpyr',
-    isPrimaryKey: true,
     isNullable: false,
     isUnique: true,
   },
-  oneToManyFixture: {
-    type: {
-      type: RelationshipType.oneToMany,
-      with: {
-        _orm_get_name: 'xyz',
-      } as any,
-    },
-  },
-  manyToManyFailFixture: {
-    type: {
-      type: RelationshipType.manyToMany,
-      with: {
-        _orm_get_name: 'ppp',
-      } as any,
-    },
-  },
-  manyToManyFixture: {
-    type: {
-      type: RelationshipType.manyToMany,
-      with: {
-        _orm_get_name: 'xyz',
-      } as any,
-    },
-  },
-  oneToOneFixture: {
-    type: {
-      type: RelationshipType.oneToOne,
-      with: {
-        _orm_get_name: 'xyz',
-      } as any,
-    },
-  },
+  // oneToManyFixture: {
+  //   // type: {
+  //   //   type: RelationshipType.oneToMany,
+  //   //   with: {
+  //   //     _orm_get_name: 'xyz',
+  //   //   } as any,
+  //   // },
+  // },
+  // manyToManyFailFixture: {
+  //   type: {
+  //     type: RelationshipType.manyToMany,
+  //     with: {
+  //       _orm_get_name: 'ppp',
+  //     } as any,
+  //   },
+  // },
+  // manyToManyFixture: {
+  //   type: {
+  //     type: RelationshipType.manyToMany,
+  //     with: {
+  //       _orm_get_name: 'xyz',
+  //     } as any,
+  //   },
+  // },
+  // oneToOneFixture: {
+  //   type: {
+  //     type: RelationshipType.oneToOne,
+  //     with: {
+  //       _orm_get_name: 'xyz',
+  //     } as any,
+  //   },
+  // },
 };
 
 export const columnMapFixtures: {

@@ -24,9 +24,11 @@ export class OneToOneStrategy implements LoadStrategy {
       dbSchema.find(({ name }) => name === withColumn),
     );
 
-    return await loader.toAction(
-      field.type.with,
-      new Equal(new Field(column), keyValue),
-    )(repository);
+    return await loader
+      .toAction(
+        field.type.with,
+        new Equal(new Field(column), keyValue),
+      )(repository)
+      .then(([result]) => result);
   }
 }

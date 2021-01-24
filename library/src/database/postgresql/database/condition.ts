@@ -1,6 +1,7 @@
 import { Condition } from '../model/condition';
-import { parseType } from '../../../utils/check';
-import { dateToISOType } from '../../../utils/date';
+import { typeFormat } from './type-format';
+
+export type PossibleType = string | Date | number | boolean;
 
 export class Field implements Condition {
   constructor(private name: string) {}
@@ -34,82 +35,77 @@ export class Not implements Condition {
   }
 }
 
-export class In<T extends number | string> implements Condition {
-  private set;
-  constructor(...set: T[]) {
-    this.set = set;
-  }
+export class In<T extends PossibleType> implements Condition {
+  constructor(private field: Field, private set: T[]) {}
 
   toString(): string {
-    let str = `IN (`;
-    this.set.forEach((el, index, arr) => {
-      str += `${parseType(el)}${index === arr.length - 1 ? '' : ', '}`;
-    });
-    str += ')';
-    return str;
+    return `${this.field} IN (${this.set.map(typeFormat).join(', ')})`;
   }
 }
 
-export class Between<T extends number | Date> implements Condition {
-  constructor(private type: string, private from: T, private to: T) {}
+export class NotIn<T extends PossibleType> implements Condition {
+  constructor(private field: Field, private set: T[]) {}
 
   toString(): string {
-    const dateType = this.from instanceof Date && this.to instanceof Date;
-    return `${this.type} BETWEEN ${
-      dateType
-        ? `${this.type} '${dateToISOType(this.from as Date)}'`
-        : this.from
-    } AND ${
-      dateType ? `${this.type} '${dateToISOType(this.to as Date)}'` : this.to
-    }`;
+    return `${this.field} NOT IN (${this.set.map(typeFormat).join(', ')})`;
   }
 }
 
-export class Equal<T extends number | string> implements Condition {
+export class Between<T extends PossibleType> implements Condition {
+  constructor(private field: Field, private from: T, private to: T) {}
+
+  toString(): string {
+    return `${this.field} BETWEEN ${typeFormat(this.from)} AND ${typeFormat(
+      this.to,
+    )}`;
+  }
+}
+
+export class Equal<T extends PossibleType> implements Condition {
   constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return `${this.field} = ${parseType(this.to)}`;
+    return `${this.field} = ${typeFormat(this.to)}`;
   }
 }
 
-export class NotEqual<T extends number | string> implements Condition {
+export class NotEqual<T extends PossibleType> implements Condition {
   constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return `${this.field} <> ${parseType(this.to)}`;
+    return `${this.field} <> ${typeFormat(this.to)}`;
   }
 }
 
-export class Greater implements Condition {
-  constructor(private field: Field, private to: number) {}
+export class Greater<T extends PossibleType> implements Condition {
+  constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return `${this.field} > ${this.to}`;
+    return `${this.field} > ${typeFormat(this.to)}`;
   }
 }
 
-export class GreaterOrEqual implements Condition {
-  constructor(private field: Field, private to: number) {}
+export class GreaterOrEqual<T extends PossibleType> implements Condition {
+  constructor(private field: Field, private to: T) {}
 
   toString(): string {
-    return `${this.field} >= ${this.to}`;
+    return `${this.field} >= ${typeFormat(this.to)}`;
   }
 }
 
-export class Less implements Condition {
+export class Less<T extends PossibleType> implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return `${this.field} < ${this.to}`;
+    return `${this.field} < ${typeFormat(this.to)}`;
   }
 }
 
-export class LessOrEqual implements Condition {
+export class LessOrEqual<T extends PossibleType> implements Condition {
   constructor(private field: Field, private to: number) {}
 
   toString(): string {
-    return `${this.field} <= ${this.to}`;
+    return `${this.field} <= ${typeFormat(this.to)}`;
   }
 }
 

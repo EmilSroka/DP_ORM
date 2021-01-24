@@ -3,11 +3,11 @@ import {PostgresqlDatabase} from "dp-orm/dist/database/postgresql/database/postg
 
 const db = new PostgresqlDatabase({
   connection: {
-    user: "postgres",
-    password: "Eee34590lp",
-    host: "localhost",
+    user: "",
+    password: "",
+    host: "",
     port: 5432,
-    database: "postgres",
+    database: "",
   }
 });
 

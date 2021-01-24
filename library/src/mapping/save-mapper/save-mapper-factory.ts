@@ -1,32 +1,20 @@
-import { TableSchema } from '../../common/models/database-schema';
 import { RelationshipType } from '../../common/models/field-types';
-import { Tables } from '../../main/metadata-containers/tables';
-import { Entity } from '../../common/models/entity';
-import { EntitySaveMapper } from './entity-save-mapper';
+import { SaveStrategy } from './models/save-strategy';
+import { OneToOneSaveStrategy } from './one-to-one-strategy';
+import { OneToManySaveStrategy } from './one-to-many-strategy';
+import { ManyToManySaveStrategy } from './many-to-many-strategy';
 
-export type SaveMapperStrategy = RelationshipType | 'entity';
+export type SaveStrategyIdentifier = RelationshipType;
 
 export class SaveMapperFactory {
-  private entityStrategy: EntitySaveMapper;
-
-  constructor(
-    private tables: Tables,
-    private dbSchema: TableSchema[],
-    private loadedObjects: Set<Entity>,
-  ) {}
-
-  get(strategy: SaveMapperStrategy) {
+  static get(strategy: SaveStrategyIdentifier): SaveStrategy {
     switch (strategy) {
-      case 'entity':
       case RelationshipType.oneToOne:
-        if (this.entityStrategy == null)
-          this.entityStrategy = new EntitySaveMapper(
-            this.tables,
-            this.dbSchema,
-            this.loadedObjects,
-            this,
-          );
-        return this.entityStrategy;
+        return new OneToOneSaveStrategy();
+      case RelationshipType.oneToMany:
+        return new OneToManySaveStrategy();
+      case RelationshipType.manyToMany:
+        return new ManyToManySaveStrategy();
     }
   }
 }

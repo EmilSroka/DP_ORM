@@ -44,10 +44,18 @@ export class EntityLoader {
     data: { [column: string]: any },
   ): T {
     const tableMap = this.getTableMap(tableName);
+    const tableSchema = this.getTableSchema(tableName);
     const result = new type();
     for (const field of tableMap.columns) {
       if (isRelationshipField(field.type)) continue;
       result[field.fieldName] = data[field.columnName];
+    }
+    const implicit = tableSchema.columns.filter(
+      ({ name }) =>
+        !tableMap.columns.some(({ columnName }) => name === columnName),
+    );
+    for (const field of implicit) {
+      result[field.name] = data[field.name];
     }
     return result;
   }

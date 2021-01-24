@@ -3,6 +3,9 @@ import { TableSchema } from '../common/models/database-schema';
 import { Database } from '../common/models/database';
 import { Equal, Field } from '../database/postgresql/database/condition';
 import { EntityLoader } from '../mapping/load-mapper/entity-loader';
+import { EntitySave } from '../mapping/save-mapper/entity-save';
+import { Entity, isEntity } from '../common/models/entity';
+import { Condition } from '../database/postgresql/model/condition';
 
 export class PersistenceManager {
   constructor(
@@ -10,7 +13,16 @@ export class PersistenceManager {
     private dbSchema: TableSchema[],
     private db: Database,
     private loader: EntityLoader,
+    private saver: EntitySave,
   ) {}
+
+  select<T>(tableName: string, condition: Condition): Promise<T> {
+    tableName = tableName.toLowerCase();
+
+    return this.db
+      .transaction<any>([this.loader.toAction(tableName, condition)])
+      .then(([result]) => result);
+  }
 
   get<T>(tableName: string, id: number | string): Promise<T> {
     tableName = tableName.toLowerCase();
@@ -25,6 +37,13 @@ export class PersistenceManager {
         this.loader.toAction(tableName, new Equal(field, id)),
       ])
       .then(([[result]]) => result);
+  }
+
+  async save(entity: any): Promise<any> {
+    if (!isEntity(entity))
+      throw new Error("ORM: can't save not an entity class");
+
+    await this.db.transaction<[any]>([this.saver.toAction(entity, new Set())]);
   }
 
   getPrimaryKey(tableName: string): string {
