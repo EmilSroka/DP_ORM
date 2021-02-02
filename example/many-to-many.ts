@@ -2,10 +2,9 @@ import orm from './orm';
 import {Student} from "./src/many-to-many/student";
 import {Subject} from "./src/many-to-many/subject";
 import {prompt} from "./src/prompt";
+import {run} from "./src/run";
 
-
-// @ts-ignore
-(async function() {
+run(async function() {
   await orm.initialize().catch(console.log);
 
   const students: Student[] = [];
@@ -45,7 +44,7 @@ import {prompt} from "./src/prompt";
 
   await orm.persistenceManager.save(students[0]);
 
-  await prompt('wait: ');
+  await prompt('waiting... ');
 
   students[0].subjects = [subjects[0], subjects[1]];
   students[1].subjects = [subjects[1]];
@@ -57,8 +56,8 @@ import {prompt} from "./src/prompt";
 
   await orm.persistenceManager.save(students[0]);
 
-  await prompt('wait: ');
+  await prompt('waiting... ');
 
   await orm.close();
-})()
+});
 

@@ -2,8 +2,6 @@ import ORM from '../../orm';
 import {JsType, RelationshipType} from "dp-orm/dist/common/models/field-types";
 import {Subject} from "./subject";
 
-console.log('Stu: ', Subject);
-
 @ORM.Entity()
 export class Student {
   @ORM.PrimaryKey({type: JsType.string})

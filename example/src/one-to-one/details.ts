@@ -1,5 +1,5 @@
 import ORM from '../../orm';
-import {DbType, JsType} from "dp-orm/dist/common/models/field-types";
+import {JsType} from "dp-orm/dist/common/models/field-types";
 
 @ORM.Entity({tableName: 'client_details'})
 export class Details {

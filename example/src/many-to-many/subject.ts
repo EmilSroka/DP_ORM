@@ -1,8 +1,6 @@
 import ORM from '../../orm';
-import {JsType, RelationshipType} from "dp-orm/dist/common/models/field-types";
+import {JsType} from "dp-orm/dist/common/models/field-types";
 import {Student} from "./student";
-
-console.log('Sub: ', Student);
 
 @ORM.Entity()
 export class Subject {

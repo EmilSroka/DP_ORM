@@ -2,9 +2,9 @@ import orm from './orm';
 import {Customer} from "./src/one-to-many/customer";
 import {Order} from "./src/one-to-many/order";
 import {prompt} from "./src/prompt";
+import {run} from "./src/run";
 
-// @ts-ignore
-(async function() {
+run(async function() {
   await orm.initialize();
 
   const customer = new Customer();
@@ -22,12 +22,12 @@ import {prompt} from "./src/prompt";
 
   await orm.persistenceManager.save(customer);
 
-  await prompt('wait: ');
+  await prompt('waiting... ');
 
   customer.orders.pop();
 
   await orm.persistenceManager.save(customer);
 
   await orm.close();
-})()
+});
 

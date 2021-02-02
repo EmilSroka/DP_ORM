@@ -2,9 +2,9 @@ import orm from './orm';
 import { Client } from "./src/one-to-one/client";
 import {Details} from "./src/one-to-one/details";
 import {prompt} from "./src/prompt";
+import {run} from "./src/run";
 
-// @ts-ignore
-(async function() {
+run(async function() {
   await orm.initialize();
 
   const user1 = new Client();
@@ -16,7 +16,7 @@ import {prompt} from "./src/prompt";
 
   await orm.persistenceManager.save(user1);
 
-  await prompt('wait: ');
+  await prompt('waiting... ');
 
   user1.details = new Details();
   user1.details.info = 'Additional info 2';
@@ -25,5 +25,5 @@ import {prompt} from "./src/prompt";
   await orm.persistenceManager.save(user1);
 
   await orm.close();
-})()
+});
 
