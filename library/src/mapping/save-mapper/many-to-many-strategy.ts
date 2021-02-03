@@ -42,9 +42,15 @@ export class ManyToManySaveStrategy implements SaveStrategy {
       linkTable,
     );
 
-    const [key2, inObject] = TableSchemaHelpers.getKeyNames(
+    const [inTable, inObject] = TableSchemaHelpers.getKeyNames(
       tables.get(target[0]._orm_table_name),
       schema,
+    );
+
+    const key2 = TableSchemaHelpers.getCorrespondedName(
+      inTable,
+      target[0]._orm_table_name,
+      linkTable,
     );
 
     for (const entity of target) {

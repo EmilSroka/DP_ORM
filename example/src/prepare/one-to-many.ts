@@ -3,7 +3,7 @@ import {JsType} from "dp-orm/dist/common/models/field-types";
 
 @ORM.Entity()
 export class OneToMany {
-  @ORM.Attribute({type: JsType.number})
+  @ORM.PrimaryKey({type: JsType.number})
   public id: number;
 
   @ORM.Attribute({type: JsType.string})

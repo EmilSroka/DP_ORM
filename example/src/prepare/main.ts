@@ -1,6 +1,5 @@
 import ORM from "../../orm";
 import {JsType, RelationshipType} from "dp-orm/dist/common/models/field-types";
-import {Details} from "../one-to-one/details";
 import {OneToOne} from "./one-to-one";
 import {OneToMany} from "./one-to-many";
 import {ManyToMany} from "./many-to-many";

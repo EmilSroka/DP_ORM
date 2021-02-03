@@ -4,7 +4,7 @@ import {Main} from "./main";
 
 @ORM.Entity()
 export class ManyToMany {
-  @ORM.Attribute({type: JsType.number})
+  @ORM.PrimaryKey({type: JsType.number})
   public id: number;
 
   @ORM.Attribute({type: JsType.string})

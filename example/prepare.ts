@@ -4,8 +4,11 @@ import {Main} from "./src/prepare/main";
 import {OneToOne} from "./src/prepare/one-to-one";
 import {OneToMany} from "./src/prepare/one-to-many";
 import {ManyToMany} from "./src/prepare/many-to-many";
+import {prompt} from "./src/prompt";
 
 run(async function() {
+  await prompt('waiting... ');
+
   await orm.initialize();
 
   const x = new Main();
@@ -14,7 +17,6 @@ run(async function() {
   x.info = 'some info';
 
   x.oto = new OneToOne();
-  x.oto.id = 1;
   x.oto.info = 'info - one';
 
   x.otm = [];

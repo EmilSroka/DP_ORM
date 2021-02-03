@@ -42,7 +42,9 @@ export class PostgresqlDatabase implements Database {
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
-      throw error;
+      const _error = new Error(`ORM: internal DB error`);
+      (_error as any).source = error;
+      throw _error;
     } finally {
       client.release();
     }

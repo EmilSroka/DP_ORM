@@ -5,6 +5,8 @@ import {prompt} from "./src/prompt";
 import {run} from "./src/run";
 
 run(async function() {
+  await prompt('waiting... ');
+
   await orm.initialize();
 
   const user1 = new Client();

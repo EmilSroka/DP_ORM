@@ -5,7 +5,9 @@ import {prompt} from "./src/prompt";
 import {run} from "./src/run";
 
 run(async function() {
-  await orm.initialize().catch(console.log);
+  await prompt('waiting... ');
+
+  await orm.initialize();
 
   const students: Student[] = [];
   const subjects: Subject[] = [];

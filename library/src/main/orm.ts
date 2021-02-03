@@ -26,7 +26,7 @@ import {
 export class ORM {
   private readonly tables: Tables;
   private readonly relationships: Relationships;
-  private readonly identityMap: IdentityMap;
+  private identityMap: IdentityMap;
   private readonly configRunner: ConfigurationRunner;
   public Attribute: AttributeDecorator;
   public Relationship: RelationshipDecorator;
@@ -37,7 +37,6 @@ export class ORM {
   constructor(private db: Database) {
     this.tables = new Tables();
     this.relationships = new Relationships();
-    this.identityMap = new IdentityMap();
     this.configRunner = new ConfigurationRunner();
     this.Attribute = Attribute.bind(this, this.tables);
     this.Relationship = Relationship.bind(
@@ -50,8 +49,17 @@ export class ORM {
   }
 
   async initialize() {
+    this.identityMap = new IdentityMap();
     this.configRunner.run();
-    await this.db.connect();
+
+    try {
+      await this.db.connect();
+    } catch (error) {
+      const _error = new Error(`ORM: cannot connect to database server`);
+      (_error as any).source = error;
+      throw _error;
+    }
+
     const tc = new TableConstructor(this.tables, this.relationships);
     const dbScheme = tc.getDatabaseScheme();
     const actions = dbScheme.map(
@@ -82,6 +90,12 @@ export class ORM {
   }
 
   async close() {
-    await this.db.disconnect();
+    try {
+      await this.db.disconnect();
+    } catch (error) {
+      const _error = new Error(`ORM: cannot close database connection`);
+      (_error as any).source = error;
+      throw _error;
+    }
   }
 }

@@ -33,7 +33,7 @@ export class OneToManySaveStrategy implements SaveStrategy {
       table,
     );
 
-    const currents = await persistenceManager.select<any>(
+    const currents = await persistenceManager.internal_select<any>(
       tableName,
       new Equal(new Field(name), foreignKey.value),
     );

@@ -5,6 +5,8 @@ import {prompt} from "./src/prompt";
 import {run} from "./src/run";
 
 run(async function() {
+  await prompt('waiting... ');
+
   await orm.initialize();
 
   const customer = new Customer();
@@ -24,7 +26,9 @@ run(async function() {
 
   await prompt('waiting... ');
 
-  customer.orders.pop();
+  order2.cost = 11;
+
+  // customer.orders.pop();
 
   await orm.persistenceManager.save(customer);
 
