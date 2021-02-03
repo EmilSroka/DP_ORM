@@ -3,6 +3,7 @@ import { NumericType, PostgreSQLConfiguration } from '../model/configuration';
 import { Database } from '../../../common/models/database';
 import { PostgresqlRepository } from './postgresql-repository';
 import { CreateQueryPartFactory } from './create-query-part';
+import { DBAction } from '../../../common/models/db-action';
 
 const defaultCreateDetails = {
   number: { type: 'float' as NumericType, precision: 53 },
@@ -22,10 +23,9 @@ export class PostgresqlDatabase implements Database {
     await this.pool.end();
   }
 
-  async transaction(
-    actions: Array<(repository: PostgresqlRepository) => Promise<boolean>>,
-  ): Promise<any> {
+  async transaction<T>(actions: DBAction[]): Promise<T[]> {
     if (this.pool == undefined) return Promise.reject(false);
+    const results: T[] = [];
 
     const client = await this.pool.connect();
     try {
@@ -37,15 +37,18 @@ export class PostgresqlDatabase implements Database {
       await client.query('BEGIN');
       for (const action of actions) {
         const result = await action(repository);
-        if (result === false) throw 'action failed';
+        results.push(result);
       }
       await client.query('COMMIT');
-    } catch {
+    } catch (error) {
       await client.query('ROLLBACK');
-      return Promise.reject(false);
+      const _error = new Error(`ORM: internal DB error`);
+      (_error as any).source = error;
+      throw _error;
+    } finally {
+      client.release();
     }
 
-    client.release();
-    return true;
+    return results;
   }
 }

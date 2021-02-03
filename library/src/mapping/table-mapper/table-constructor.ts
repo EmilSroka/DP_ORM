@@ -4,6 +4,7 @@ import { Column, TableSchema } from '../../common/models/database-schema';
 import {
   DbType,
   isRelationshipField,
+  JsType,
   RelationshipType,
 } from '../../common/models/field-types';
 import { ColumnMap } from '../../common/models/column-map';
@@ -153,7 +154,19 @@ export class TableConstructor {
             columnName: primaryKey.name,
             tableName: tableMap.tableName,
           };
-          if (type === RelationshipType.oneToMany) copy.isPrimaryKey = false;
+
+          if (
+            [RelationshipType.oneToMany, RelationshipType.manyToMany].includes(
+              type,
+            )
+          ) {
+            copy.isPrimaryKey = false;
+            copy.isUnique = false;
+          }
+
+          if (type === RelationshipType.oneToMany) {
+            copy.isNullable = true;
+          }
 
           target.push(copy);
         }
@@ -199,6 +212,7 @@ export class TableConstructor {
           tableName: fromTableName,
         };
         key.isPrimaryKey = false;
+        key.isUnique = false;
       }
 
       for (const key of keysToTable) {
@@ -207,6 +221,7 @@ export class TableConstructor {
           tableName: toTableName,
         };
         key.isPrimaryKey = false;
+        key.isUnique = false;
       }
 
       for (const keyFromTable of keysFromTable) {
