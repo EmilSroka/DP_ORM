@@ -30,82 +30,12 @@ describe('Attribute (decorator)', () => {
     tablesFixtures[target[tableNameField]].columns = [];
   });
 
-  it.skip('should get TableMap from Tables container', () => {
-    const { jsTypeFixture: settings } = attributeConfigurationFixtures;
-    //const attribute = Attribute(tables, relationships, settings);
-    //attribute(target, filedName);
-
-    expect(tables.get).toHaveBeenCalledTimes(1);
-    expect(tables.get).toHaveBeenCalledWith(tableNameValue);
-  });
-
-  it.skip('should fill optional properties with default values (if not provided)', () => {
-    const { jsTypeFixture: settings } = attributeConfigurationFixtures;
-    const { jsTypeFixture: result } = columnMapFixtures;
-    // const attribute = Attribute(tables, relationships, settings);
-    // attribute(target, filedName);
-    const columnMap = tablesFixtures[target[tableNameField]].columns[0];
-
-    expect(columnMap).toEqual(result);
-  });
-
-  it.skip('should create ColumnMap based on provided settings', () => {
-    const { allSettingsFixture: settings } = attributeConfigurationFixtures;
-    const { allSettingsFixture: result } = columnMapFixtures;
-    //const attribute = Attribute(tables, relationships, settings);
-    //attribute(target, filedName);
-    const columnMap = tablesFixtures[target[tableNameField]].columns[0];
-
-    expect(columnMap).toEqual(result);
-  });
-
-  it.skip('should insert relationship if included in the settings', () => {
-    const { manyToManyFixture: settings } = attributeConfigurationFixtures;
-    const { manyToManyFixture: result } = relationshipsFixtures;
-    //const attribute = Attribute(tables, relationships, settings);
-    //attribute(target, filedName);
-    const callAttribute = (relationships.add as Mock).mock.calls[0][0];
-
-    expect(relationships.add).toHaveBeenCalledTimes(1);
-    expect(callAttribute).toEqual(result);
-  });
-
   it('cannot insert relationship if not included in the settings', () => {
     const { jsTypeFixture: settings } = attributeConfigurationFixtures;
     //const attribute = Attribute(tables, relationships, settings);
     //attribute(target, filedName);
 
     expect(relationships.add).not.toHaveBeenCalled();
-  });
-
-  it.skip('should handle one to many relationship', () => {
-    const { oneToManyFixture: settings } = attributeConfigurationFixtures;
-    const { oneToManyFixture: result } = columnMapFixtures;
-    //const attribute = Attribute(tables, relationships, settings);
-    //attribute(target, filedName);
-    const columnMap = tablesFixtures[target[tableNameField]].columns[0];
-
-    expect(columnMap).toEqual(result);
-  });
-
-  it.skip('should handle many to many relationship', () => {
-    const { manyToManyFixture: settings } = attributeConfigurationFixtures;
-    const { manyToManyFixture: result } = columnMapFixtures;
-    //const attribute = Attribute(tables, relationships, settings);
-    //attribute(target, filedName);
-    const columnMap = tablesFixtures[target[tableNameField]].columns[0];
-
-    expect(columnMap).toEqual(result);
-  });
-
-  it.skip('should handle one to one relationship', () => {
-    const { oneToOneFixture: settings } = attributeConfigurationFixtures;
-    const { oneToOneFixture: result } = columnMapFixtures;
-    // const attribute = Attribute(tables, relationships, settings);
-    // attribute(target, filedName);
-    const columnMap = tablesFixtures[target[tableNameField]].columns[0];
-
-    expect(columnMap).toEqual(result);
   });
 
   it('cannot insert many to many relationship if exists already', () => {

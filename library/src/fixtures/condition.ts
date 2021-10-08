@@ -42,7 +42,6 @@ export const logicalOperatorsFixture: { [key: string]: Operator } = {
 };
 
 export const conditionalOperatorsNames = [
-  'IN',
   'BETWEEN',
   '=',
   '<>',
@@ -54,14 +53,6 @@ export const conditionalOperatorsNames = [
 ];
 
 export const conditionalOperatorsFixture: { [key: string]: Operator } = {
-  IN: {
-    input: [
-      [46, 57],
-      ['val1', 'val2'],
-    ],
-    output: [/IN \(46, ?57\)/, /IN \('val1', ?'val2'\)/],
-    tested: In,
-  },
   BETWEEN: {
     input: [
       [{ toString: () => 'money' }, 46, 57],
