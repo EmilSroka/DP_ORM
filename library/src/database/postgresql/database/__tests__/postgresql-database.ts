@@ -23,30 +23,6 @@ describe('PostgresqlDatabase', () => {
     });
   });
 
-  it.skip('method: transaction should call all actions until once fail (rejected or resolved as false)', async () => {
-    expect.assertions(12);
-
-    await postgresqlDatabase.connect();
-    await postgresqlDatabase.transaction(actionFixture);
-    await postgresqlDatabase.transaction(actionFailFixture).catch(() => null);
-    await postgresqlDatabase
-      .transaction(actionFailByRejectionFixture)
-      .catch(() => null);
-
-    expect(actionFixture[0]).toBeCalledTimes(1);
-    expect(actionFixture[1]).toBeCalledTimes(1);
-    expect(actionFixture[2]).toBeCalledTimes(1);
-    expect(actionFixture[3]).toBeCalledTimes(1);
-    expect(actionFailFixture[0]).toBeCalledTimes(1);
-    expect(actionFailFixture[1]).toBeCalledTimes(1);
-    expect(actionFailFixture[2]).toBeCalledTimes(1);
-    expect(actionFailFixture[3]).not.toBeCalled();
-    expect(actionFailByRejectionFixture[0]).toBeCalledTimes(1);
-    expect(actionFailByRejectionFixture[1]).toBeCalledTimes(1);
-    expect(actionFailByRejectionFixture[2]).toBeCalledTimes(1);
-    expect(actionFailByRejectionFixture[3]).not.toBeCalled();
-  });
-
   it('method: transaction should return a resolved promise on success (all transactions passed)', async () => {
     expect.assertions(1);
 
@@ -55,16 +31,6 @@ describe('PostgresqlDatabase', () => {
     await expect(
       postgresqlDatabase.transaction(actionFixture),
     ).resolves.toBeTruthy();
-  });
-
-  it.skip('method: transaction should return a rejected promise on failure (one transaction failed)', async () => {
-    expect.assertions(1);
-
-    await postgresqlDatabase.connect();
-
-    await expect(
-      postgresqlDatabase.transaction(actionFailFixture),
-    ).rejects.toBeFalsy();
   });
 
   it('method: transaction should return a rejected promise when there is no connection to database', async () => {
@@ -83,16 +49,6 @@ describe('PostgresqlDatabase', () => {
     expect(QueryMockFn).toHaveBeenCalledTimes(2);
     expect(QueryMockFn).toHaveBeenNthCalledWith(1, 'BEGIN');
     expect(QueryMockFn).toHaveBeenNthCalledWith(2, 'COMMIT');
-  });
-
-  it.skip('method: transaction should rollback on fail', async () => {
-    expect.assertions(3);
-
-    await postgresqlDatabase.connect();
-    await postgresqlDatabase.transaction(actionFailFixture).catch(() => null);
-    expect(QueryMockFn).toHaveBeenCalledTimes(2);
-    expect(QueryMockFn).toHaveBeenNthCalledWith(1, 'BEGIN');
-    expect(QueryMockFn).toHaveBeenNthCalledWith(2, 'ROLLBACK');
   });
 
   it('method: transaction should pass PostgresqlRepository instance to actions', async () => {

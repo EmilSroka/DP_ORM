@@ -32,47 +32,6 @@ describe('PostgresqlRepository', () => {
     );
   });
 
-  it.skip('method: insert should call query on PoolClient with proper "Query config object"', async () => {
-    expect.assertions(3);
-
-    // await repository.insert(
-    //   tableNameBasicInput,
-    //   fieldsBasicInput,
-    //   valuesBasicInput,
-    // );
-
-    expect(poolClientMock.query).toHaveBeenCalledTimes(1);
-    const argument = (poolClientMock.query as Mock).mock.calls[0][0];
-    expect(basicOutput.text.test(argument.text)).toBeTruthy();
-    expect(argument.values).toEqual(basicOutput.values);
-  });
-
-  it.skip('method: insert should handle inserting multiple objects', async () => {
-    expect.assertions(3);
-
-    // await repository.insert(
-    //   tableNameMultiInput,
-    //   fieldsMultiInput,
-    //   valuesMultiInput,
-    // );
-
-    expect(poolClientMock.query).toHaveBeenCalledTimes(1);
-    const argument = (poolClientMock.query as Mock).mock.calls[0][0];
-    expect(multiOutput.text.test(argument.text)).toBeTruthy();
-    expect(argument.values).toEqual(multiOutput.values);
-  });
-
-  it.skip('method: insert should return output from PoolClient.query function', () => {
-    expect.assertions(1);
-    // expect(
-    //   repository.insert(
-    //     tableNameBasicInput,
-    //     fieldsBasicInput,
-    //     valuesBasicInput,
-    //   ),
-    // ).resolves.toBe(insertPromiseValue);
-  });
-
   it('method: create should get query part for every column from proper CreateQueryPart taken from CreateQueryPartFactory', async () => {
     expect.assertions(2 + TableSchemaFixture.columns.length);
     await repository.create(TableSchemaFixture);

@@ -28,8 +28,6 @@ run(async function() {
 
   order2.cost = 11;
 
-  // customer.orders.pop();
-
   await orm.persistenceManager.save(customer);
 
   await orm.close();
